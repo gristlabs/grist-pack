@@ -1,0 +1,86 @@
+#!/bin/bash
+
+# Check if gristParameters  file exists and is readable
+if [ ! -r /etc/gristParameters ]; then
+  echo "Error: gristParameters  file does not exist or is not readable."
+  exit 1
+fi
+
+# Read variables from gristParameters  file
+set -a
+source /etc/gristParameters
+set +a
+
+# Get token for accessing AWS EC2 metadata
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600") || {
+  echo "Error: Failed to get token."
+  exit 1
+}
+
+# Get domain
+DOMAIN=$(curl -H "X-aws-ec2-metadata-token: ${TOKEN}" http://169.254.169.254/latest/meta-data/public-hostname) || {
+  echo "Error: Failed to get domain."
+  exit 1
+}
+
+# Check if ADMIN_EMAIL is set. If not, use instance name as email domain
+if [ -z "$ADMIN_EMAIL" ]; then
+  # Get instance name and set it as email domain
+  ADMIN_EMAIL="admin@${DOMAIN}"
+fi
+
+# Check if TEAM_NAME is set. If not, throw error
+if [ -z "$TEAM_NAME" ]; then
+  echo "Error: TEAM_NAME is not set."
+  exit 1
+fi
+
+# Optional parameters:
+# URL to the app. If it's not set, use public URL
+if [ -z "$URL" ]
+then
+  echo "URL is not set. Using public URL"
+  URL="http://${DOMAIN}"
+  echo "URL set to $URL"
+fi
+
+# Check if URL is https. If it is, set HTTPS=auto
+HTTPS_OPTION=""
+if [[ $URL == https://* ]]; then
+    HTTPS_OPTION="-e HTTPS=auto"
+else
+    echo "https is not set"
+fi
+
+# Check if --dryrun flag is set
+if [ "$1" == "--dryrun" ]; then
+  echo "Running script in dry run mode."
+  echo "URL: $URL"
+  echo "TEAM_NAME: $TEAM_NAME"
+  echo "ADMIN_EMAIL: $ADMIN_EMAIL"
+  echo "HTTPS_OPTION: $HTTPS_OPTION"
+  exit 0
+fi
+
+# STOP AND REMOVE ANY DOCKER INSTANCES IF ANY IS UP
+CONTAINER_IDS=$(sudo docker ps -a -q)
+if [ -n "$CONTAINER_IDS" ]; then
+    sudo docker rm -f $CONTAINER_IDS
+fi
+
+# DOCKER START
+docker run \
+-p 80:80 \
+-p 443:443 \
+-e URL="${URL}" \
+-e TEAM="${TEAM_NAME}" \
+-e EMAIL=${ADMIN_EMAIL} \
+${HTTPS_OPTION} \
+-v /tmp/grist-test:/persist \
+-v ~/dex.yaml:/custom/dex.yaml \
+--name grist \
+--restart on-failure \
+gristlabs/grist-omnibus || {
+  echo "Error: Failed to start Docker container."
+  exit 1
+}
