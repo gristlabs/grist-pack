@@ -1,0 +1,15 @@
+# it can take cleanDex flag. with it, it will celan dex database (deleting it from /tmp/grist-temp) before restarting the container
+#!/bin/bash
+
+# Check if the script received the cleanDex flag
+if [ "$1" == "cleanDex" ]; then
+    # If so, delete the dex database
+    echo "Cleaning dex database..."
+    rm -rf /tmp/grist-test/auth
+fi
+
+# Restart the container
+echo "Restarting the container..."
+/etc/rc.local
+
+echo "Done."

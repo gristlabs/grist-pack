@@ -8,7 +8,7 @@ fi
 
 # Read variables from gristParameters  file
 set -a
-source /etc/gristParameters
+source /etc/grist/gristParameters
 set +a
 
 # Get token for accessing AWS EC2 metadata

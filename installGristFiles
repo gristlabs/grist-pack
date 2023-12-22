@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Move rc.local to /etc
+if [ -f "rc.local" ]; then
+    mv rc.local /etc/
+fi
+
+# Move restartGrist and gristParameters to /etc/grist
+# Check if restartGrist and gristParameters exist in the current directory
+if [ -f "restartGrist" ] && [ -f "gristParameters" ]; then
+    # If they do, move them to /usr/local/bin
+    mv restartGrist /etc/grist
+    mv gristParameters /etc/grist
+else
+    echo "restartGrist and/or gristParameters not found in the current directory."
+fi
+
+# Remove all remaining files from this folder, including this script
+rm -rf *

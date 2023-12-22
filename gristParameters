@@ -1,3 +1,15 @@
+
+#Email adress of the admin 
+#- it will be used to create the admin user, and to generate ssl certificate
+
 #ADMIN_EMAIL=
+
+# name of the team - it will be visible in grist app
+
 TEAM_NAME='Cool-Beans'
-URL='https://dfsdf.com'
+
+# URL to the app. If it's not set, use public URL. It need to be set to generate ssl certificate
+# and create share link by grist. If it's not set, it will be set to public URL
+# please enter it in format: https://yourdomain.com (without slash at the end)
+
+#URL='https://dfsdf.com'
