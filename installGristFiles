@@ -40,9 +40,9 @@ if [ $? -ne 0 ]; then
 fi
 
 # Remove all remaining files from this folder, including this script and folder itself
-# Store the current directory path
-current_dir=$(pwd)
+# Store the script's directory path
+script_dir=$(dirname "$0")
 # Move one directory up
 cd ..
-# Remove the current directory
-rm -rf "$current_dir"
+# Remove the script's directory
+rm -rf "$script_dir"
