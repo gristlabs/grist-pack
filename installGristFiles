@@ -23,6 +23,11 @@ for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path";
     fi
 done
 
+# Check if /etc/grist exists and create it if it doesn't
+if [ ! -d "/etc/grist" ]; then
+    mkdir /etc/grist
+fi
+
 # Move the files to their destinations
 mv "$localfile_path" /etc/
 if [ $? -ne 0 ]; then
@@ -30,10 +35,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Check if /etc/grist exists and create it if it doesn't
-if [ ! -d "/etc/grist" ]; then
-    mkdir /etc/grist
-fi
+
 
 mv "$restartgrist_path" /etc/grist
 mv "$gristparameters_path" /etc/grist
