@@ -5,20 +5,44 @@ chmod +x rc.local
 chmod +x restartGrist
 chmod +x gristParameters
 
+# Check if chmod was successful
+if [ $? -ne 0 ]; then
+    echo "Failed to change permissions."
+    exit 1
+fi
+
 # Move rc.local to /etc
 if [ -f "rc.local" ]; then
     mv rc.local /etc/
 fi
 
+# Check if move was successful
+if [ $? -ne 0 ]; then
+    echo "Failed to move rc.local."
+    exit 1
+fi
+
 # Move restartGrist and gristParameters to /etc/grist
 # Check if restartGrist and gristParameters exist in the current directory
 if [ -f "restartGrist" ] && [ -f "gristParameters" ]; then
-    # If they do, move them to /usr/local/bin
+    # If they do, move them to /etc/grist
     mv restartGrist /etc/grist
     mv gristParameters /etc/grist
 else
     echo "restartGrist and/or gristParameters not found in the current directory."
+    exit 1
 fi
 
-# Remove all remaining files from this folder, including this script
-rm -rf *
+# Check if move was successful
+if [ $? -ne 0 ]; then
+    echo "Failed to move restartGrist and/or gristParameters."
+    exit 1
+fi
+
+# Remove all remaining files from this folder, including this script and folder itself
+# Store the current directory path
+current_dir=$(pwd)
+# Move one directory up
+cd ..
+# Remove the current directory
+rm -rf "$current_dir"
