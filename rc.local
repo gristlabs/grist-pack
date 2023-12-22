@@ -29,6 +29,12 @@ if [ -z "$ADMIN_EMAIL" ]; then
   ADMIN_EMAIL="admin@${DOMAIN}"
 fi
 
+# Check if ADMIN_EMAIL is set. If not, use instance name as email domain
+PASSWORD_OPTION=""
+if [ -n "$ADMIN_EMAIL" ]; then
+  PASSWORD_OPTION="-e PASSWORD=${DOMAIN}"
+fi
+
 # Check if TEAM_NAME is set. If not, throw error
 if [ -z "$TEAM_NAME" ]; then
   echo "Error: TEAM_NAME is not set."
@@ -75,6 +81,7 @@ docker run \
 -e URL="${URL}" \
 -e TEAM="${TEAM_NAME}" \
 -e EMAIL=${ADMIN_EMAIL} \
+${PASSWORD_OPTION} \
 ${HTTPS_OPTION} \
 -v /tmp/grist-test:/persist \
 -v /etc/grist/dex.yaml:/custom/dex.yaml \
