@@ -1,48 +1,47 @@
 #!/bin/bash
 
-# add execute permissions to rc.local, restartGrist and gristParameters
-chmod +x rc.local
-chmod +x restartGrist
-chmod +x gristParameters
-
-# Check if chmod was successful
-if [ $? -ne 0 ]; then
-    echo "Failed to change permissions."
-    exit 1
-fi
-
-# Move rc.local to /etc
-if [ -f "rc.local" ]; then
-    mv rc.local /etc/
-fi
-
-# Check if move was successful
-if [ $? -ne 0 ]; then
-    echo "Failed to move rc.local."
-    exit 1
-fi
-
-# Move restartGrist and gristParameters to /etc/grist
-# Check if restartGrist and gristParameters exist in the current directory
-if [ -f "restartGrist" ] && [ -f "gristParameters" ]; then
-    # If they do, move them to /etc/grist
-    mv restartGrist /etc/grist
-    mv gristParameters /etc/grist
-else
-    echo "restartGrist and/or gristParameters not found in the current directory."
-    exit 1
-fi
-
-# Check if move was successful
-if [ $? -ne 0 ]; then
-    echo "Failed to move restartGrist and/or gristParameters."
-    exit 1
-fi
-
-# Remove all remaining files from this folder, including this script and folder itself
-# Store the script's directory path
+# Define the paths to the files
 script_dir=$(dirname "$0")
-# Move one directory up
-cd ..
+localfile_path="$script_dir/rc.local"
+restartgrist_path="$script_dir/restartGrist"
+gristparameters_path="$script_dir/gristParameters"
+
+# Check if the files exist
+for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path"; do
+    if [ ! -f "$file_path" ]; then
+        echo "File not found: $file_path"
+        exit 1
+    fi
+done
+
+# Add execute permissions to the files
+for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path"; do
+    chmod +x "$file_path"
+    if [ $? -ne 0 ]; then
+        echo "Failed to change permissions for: $file_path"
+        exit 1
+    fi
+done
+
+# Move the files to their destinations
+mv "$localfile_path" /etc/
+if [ $? -ne 0 ]; then
+    echo "Failed to move file: $localfile_path"
+    exit 1
+fi
+
+# Check if /etc/grist exists and create it if it doesn't
+if [ ! -d "/etc/grist" ]; then
+    mkdir /etc/grist
+fi
+
+mv "$restartgrist_path" /etc/grist
+mv "$gristparameters_path" /etc/grist
+if [ $? -ne 0 ]; then
+    echo "Failed to move file: $restartgrist_path or $gristparameters_path"
+    exit 1
+fi
+
 # Remove the script's directory
+cd ..
 rm -rf "$script_dir"
