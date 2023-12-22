@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# add execute permissions to rc.local, restartGrist and gristParameters
+chmod +x rc.local
+chmod +x restartGrist
+chmod +x gristParameters
+
 # Move rc.local to /etc
 if [ -f "rc.local" ]; then
     mv rc.local /etc/
