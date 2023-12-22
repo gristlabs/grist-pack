@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Check if gristParameters  file exists and is readable
-if [ ! -r /etc/gristParameters ]; then
+if [ ! -r /etc/grist/gristParameters ]; then
   echo "Error: gristParameters  file does not exist or is not readable."
   exit 1
 fi
