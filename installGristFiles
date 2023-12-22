@@ -5,9 +5,10 @@ script_dir=$(dirname "$0")
 localfile_path="$script_dir/rc.local"
 restartgrist_path="$script_dir/restartGrist"
 gristparameters_path="$script_dir/gristParameters"
+dexyaml_path="$script_dir/dex.yaml"  # Add this line
 
 # Check if the files exist
-for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path"; do
+for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path" "$dexyaml_path"; do  # Add "$dexyaml_path"
     if [ ! -f "$file_path" ]; then
         echo "File not found: $file_path"
         exit 1
@@ -35,15 +36,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-
-
 mv "$restartgrist_path" /etc/grist
 mv "$gristparameters_path" /etc/grist
+mv "$dexyaml_path" /etc/grist  # Add this line
 if [ $? -ne 0 ]; then
-    echo "Failed to move file: $restartgrist_path or $gristparameters_path"
+    echo "Failed to move file: $restartgrist_path or $gristparameters_path or $dexyaml_path"  # Add "$dexyaml_path"
     exit 1
 fi
-
-# Remove the script's directory
-cd ..
-rm -rf "$script_dir"

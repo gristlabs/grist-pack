@@ -77,7 +77,7 @@ docker run \
 -e EMAIL=${ADMIN_EMAIL} \
 ${HTTPS_OPTION} \
 -v /tmp/grist-test:/persist \
--v ~/dex.yaml:/custom/dex.yaml \
+-v /etc/grist/dex.yaml:/custom/dex.yaml \
 --name grist \
 --restart on-failure \
 gristlabs/grist-omnibus || {
