@@ -1,0 +1,9 @@
+#disable root login
+sudo passwd -l root
+# remove ssh keys
+sudo shred -u /etc/ssh/*_key /etc/ssh/*_key.pub
+# remove git repository 
+rm -rf ~/grist-
+# cleanu command history 
+shred -u ~/.*history
+cat /dev/null > ~/.bash_history && history -c && exit
