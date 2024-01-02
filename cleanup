@@ -1,9 +1,15 @@
+# stop and remove all runing containers
+sudo docker stop $(sudo docker ps -a -q)
+#clean grist temp data 
+sudo rm -rf /tmp/grist-test
 #disable root login
 sudo passwd -l root
-# remove ssh keys
-sudo shred -u /etc/ssh/*_key /etc/ssh/*_key.pub
-# remove git repository 
-rm -rf ~/grist-
+# shred ssh keys
+sudo shred -u /etc/ssh/*_key /etc/ssh/*_key.pub /root/.ssh/authorized_keys /home/*/.ssh/authorized_keys
+# and remove them 
+sudo rm -rf /etc/ssh/*_key /etc/ssh/*_key.pub /root/.ssh/* /home/*/.ssh/*
+
+# remove grist repository from home directory
+sudo rm -rf ~/grist-*
 # cleanu command history 
-shred -u ~/.*history
 cat /dev/null > ~/.bash_history && history -c && exit
