@@ -1,15 +1,16 @@
 #!/bin/bash
 
-$instalation_path = "~/grist"
-# Check if gristParameters  file exists and is readable
-if [ ! -r "$$instalation_path/gristParameters" ]; then
-  echo "Error: gristParameters  file does not exist or is not readable."
+installation_path="$HOME/grist"
+
+# Check if gristParameters file exists and is readable
+if [ ! -r "$installation_path/gristParameters" ]; then
+  echo "Error: gristParameters file does not exist or is not readable."
   exit 1
 fi
 
-# Read variables from gristParameters  file
+# Read variables from gristParameters file
 set -a
-source "$instalation_path/gristParameters"
+source "$installation_path/gristParameters"
 set +a
 
 # Get token for accessing AWS EC2 metadata
@@ -30,7 +31,7 @@ if [ -z "$ADMIN_EMAIL" ]; then
   # Get instance name and set it as email domain
   ADMIN_EMAIL="admin@${DOMAIN}"
 else
-  DEX_SCRIPT="-v $instalation_path/dex.yaml:/custom/dex.yaml"
+  DEX_SCRIPT="-v $installation_path/dex.yaml:/custom/dex.yaml"
 fi
 
 # Check if ADMIN_EMAIL is set. If not, use instance name as email domain
@@ -39,66 +40,14 @@ if [ -n "$ADMIN_EMAIL" ]; then
   PASSWORD_OPTION="-e PASSWORD=${DOMAIN}"
 fi
 
-# Check if TEAM_NAME is set. If not, throw error
+# Check if TEAM_NAME is set. If not, throw an error
 if [ -z "$TEAM_NAME" ]; then
   echo "Error: TEAM_NAME is not set."
   exit 1
 fi
 
 # Optional parameters:
-# URL to the app. If it's not set, use public URL
-if [ -z "$URL" ]
-then
-  echo "URL is not set. Using public URL"
-  URL="http://${DOMAIN}"
-  echo "URL set to $URL"
-fi
-
-# Check if URL is https. If it is, set HTTPS=auto
-HTTPS_OPTION=""
-if [[ $URL == https://* ]]; then
-    HTTPS_OPTION="-e HTTPS=auto"
-else
-    echo "https is not set"
-fi
-
-DOCKER_CMD="docker run \
--p 80:80 \
--p 443:443 \
--e URL=\"${URL}\" \
--e TEAM=\"${TEAM_NAME}\" \
--e EMAIL=${ADMIN_EMAIL} \
--e GRIST_SANDBOX_FLAVOR=gvisor \
-${PASSWORD_OPTION} \
-${HTTPS_OPTION} \
--v /tmp/grist-test:/persist \
-${DEX_SCRIPT} \
---name grist \
---restart on-failure \
---quiet \
--d \
-gristlabs/grist-omnibus"
-
-# Check if --dryrun flag is set
-if [ "$1" == "--dryrun" ]; then
-  echo "Running script in dry run mode."
-  echo "URL: $URL"
-  echo "TEAM_NAME: $TEAM_NAME"
-  echo "ADMIN_EMAIL: $ADMIN_EMAIL"
-  echo "HTTPS_OPTION: $HTTPS_OPTION"
-  echo "The Docker command would be:"
-  echo "$DOCKER_CMD"
-  exit 0
-fi
-
-# STOP AND REMOVE ANY DOCKER INSTANCES IF ANY IS UP
-CONTAINER_IDS=$(sudo docker ps -a -q)
-if [ -n "$CONTAINER_IDS" ]; then
-    sudo docker rm -f $CONTAINER_IDS
-fi
-
-# DOCKER START
-eval $DOCKER_CMD || {
-  echo "Error: Failed to start Docker container."
-  exit 1
-}
+# URL to the app. If it's not set, use the public URL
+if [ -z "$URL" ]; then
+  echo "URL is not set. Using the public URL."
+  URL="
