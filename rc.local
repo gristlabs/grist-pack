@@ -67,12 +67,14 @@ DOCKER_CMD="docker run \
 -e URL=\"${URL}\" \
 -e TEAM=\"${TEAM_NAME}\" \
 -e EMAIL=${ADMIN_EMAIL} \
+-e GRIST_SANDBOX_FLAVOR=gvisor \
 ${PASSWORD_OPTION} \
 ${HTTPS_OPTION} \
 -v /tmp/grist-test:/persist \
 ${DEX_SCRIPT} \
 --name grist \
 --restart on-failure \
+--quiet \
 gristlabs/grist-omnibus"
 
 # Check if --dryrun flag is set
