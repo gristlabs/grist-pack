@@ -1,14 +1,15 @@
 #!/bin/bash
 
+$instalation_path = "~/grist"
 # Check if gristParameters  file exists and is readable
-if [ ! -r /etc/grist/gristParameters ]; then
+if [ ! -r "$$instalation_path/gristParameters" ]; then
   echo "Error: gristParameters  file does not exist or is not readable."
   exit 1
 fi
 
 # Read variables from gristParameters  file
 set -a
-source /etc/grist/gristParameters
+source "$instalation_path/gristParameters"
 set +a
 
 # Get token for accessing AWS EC2 metadata
@@ -29,7 +30,7 @@ if [ -z "$ADMIN_EMAIL" ]; then
   # Get instance name and set it as email domain
   ADMIN_EMAIL="admin@${DOMAIN}"
 else
-  DEX_SCRIPT="-v /etc/grist/dex.yaml:/custom/dex.yaml"
+  DEX_SCRIPT="-v $instalation_path/dex.yaml:/custom/dex.yaml"
 fi
 
 # Check if ADMIN_EMAIL is set. If not, use instance name as email domain

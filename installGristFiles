@@ -7,6 +7,8 @@ restartgrist_path="$script_dir/restartGrist"
 gristparameters_path="$script_dir/gristParameters"
 dexyaml_path="$script_dir/dex.yaml"  # Add this line
 
+instalation_path="~/grist"
+
 # Check if the files exist
 for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path" "$dexyaml_path"; do  # Add "$dexyaml_path"
     if [ ! -f "$file_path" ]; then
@@ -24,22 +26,24 @@ for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path";
     fi
 done
 
-# Check if /etc/grist exists and create it if it doesn't
-if [ ! -d "/etc/grist" ]; then
-    mkdir /etc/grist
+# Check if ~/grist exists and create it if it doesn't
+if [ ! -d $instalation_path ]; then
+    mkdir $instalation_path
 fi
 
 # Move the files to their destinations
-mv "$localfile_path" /etc/
+# Rc.local is moved to /etc
+mv "$localfile_path" /etc
 if [ $? -ne 0 ]; then
     echo "Failed to move file: $localfile_path"
     exit 1
 fi
 
-mv "$restartgrist_path" /etc/grist
-mv "$gristparameters_path" /etc/grist
-mv "$dexyaml_path" /etc/grist  # Add this line
+# The rest of the files are moved to ~/grist
+mv "$restartgrist_path" $instalation_path
+mv "$gristparameters_path" $instalation_path
+mv "$dexyaml_path" $instalation_path 
 if [ $? -ne 0 ]; then
-    echo "Failed to move file: $restartgrist_path or $gristparameters_path or $dexyaml_path"  # Add "$dexyaml_path"
+    echo "Failed to move file: $restartgrist_path or $gristparameters_path or $dexyaml_path"
     exit 1
 fi
