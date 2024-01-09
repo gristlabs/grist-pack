@@ -32,7 +32,6 @@ if [ ! -d $instalation_path ]; then
 fi
 
 # Initialize flags
-force=0
 rc=0
 r=0
 p=0
@@ -47,9 +46,6 @@ d=0
 # -rc: rc.local flag, if set, the rc.local file will be moved
 while getopts "f:arpdrc" opt; do
     case $opt in
-        f)
-            force=1
-            ;;
         a)
             rc=1
             r=1
@@ -76,30 +72,30 @@ while getopts "f:arpdrc" opt; do
 done
 
 # Move the files to their destinations
-if [ $force -eq 1 -o ! -f "/etc/$(basename $localfile_path)" ] && [ $rc -eq 1 ]; then
+if [ -f "/etc/$(basename $localfile_path)" ] && [ $rc -eq 1 ]; then
     mv -f "$localfile_path" /etc
     echo "Moved: $localfile_path"
-elif [ $rc -eq 1 ]; then
+elif [ -f "/etc/$(basename $localfile_path)" ]; then
     echo "File already exists and was not moved: $localfile_path"
 fi
 
-if [ $force -eq 1 -o ! -f "$instalation_path/$(basename $restartgrist_path)" ] && [ $r -eq 1 ]; then
+if [  -f "$instalation_path/$(basename $restartgrist_path)" ] && [ $r -eq 1 ]; then
     mv -f "$restartgrist_path" $instalation_path
     echo "Moved: $restartgrist_path"
-elif [ $r -eq 1 ]; then
+elif [ -f "$instalation_path/$(basename $restartgrist_path)"]; then
     echo "File already exists and was not moved: $restartgrist_path"
 fi
 
-if [ $force -eq 1 -o ! -f "$instalation_path/$(basename $gristparameters_path)" ] && [ $p -eq 1 ]; then
+if [  -f "$instalation_path/$(basename $gristparameters_path)" ] && [ $p -eq 1 ]; then
     mv -f "$gristparameters_path" $instalation_path
     echo "Moved: $gristparameters_path"
-elif [ $p -eq 1 ]; then
+elif [ -f "$instalation_path/$(basename $gristparameters_path)" ]; then
     echo "File already exists and was not moved: $gristparameters_path"
 fi
 
-if [ $force -eq 1 -o ! -f "$instalation_path/$(basename $dexyaml_path)" ] && [ $d -eq 1 ]; then
+if [  -f "$instalation_path/$(basename $dexyaml_path)" ] && [ $d -eq 1 ]; then
     mv -f "$dexyaml_path" $instalation_path
     echo "Moved: $dexyaml_path"
-elif [ $d -eq 1 ]; then
+elif [ -f "$instalation_path/$(basename $dexyaml_path)" ]; then
     echo "File already exists and was not moved: $dexyaml_path"
 fi
