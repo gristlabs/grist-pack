@@ -7,7 +7,7 @@ restartgrist_path="$script_dir/restartGrist"
 gristparameters_path="$script_dir/gristParameters"
 dexyaml_path="$script_dir/dex.yaml"
 
-instalation_path="~/grist"
+instalation_path="home/ubuntu/grist"
 
 # Check if the files exist
 for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path" "$dexyaml_path"; do
