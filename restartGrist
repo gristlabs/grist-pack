@@ -1,16 +1,16 @@
 # it can take cleanDex flag. with it, it will celan dex database (deleting it from /tmp/grist-temp) before restarting the container
 #!/bin/bash
-
+temp_path="/tmp/grist-test"
 # Check if the script received the cleanDex flag
 if [ "$1" = "clean" ]; then
     # If so, delete the dex database
     echo "Cleaning database..."
-    rm -rf /tmp/grist-test/auth
+    rm -rf "$temp_path/auth"
     if [ $? -ne 0 ]; then
         echo "Failed to clean dex database."
         exit 1
     fi
-    rm -rf /tmp/grist-test/home.sqlite3
+    rm -rf "$temp_path/home.sqlite3"
     if [ $? -ne 0 ]; then
         echo "Failed to clean grist database."
         exit 1
