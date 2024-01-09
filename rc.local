@@ -1,6 +1,6 @@
 #!/bin/bash
 
-instalation_path = "/home/ubuntu/grist"
+instalation_path="/home/ubuntu/grist"
 # Check if gristParameters  file exists and is readable
 if [ ! -r $instalation_path/gristParameters ]; then
   echo "Error: gristParameters  file does not exist or is not readable."
