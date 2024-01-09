@@ -41,6 +41,7 @@ d=0
 while getopts "f:arpdrc" opt; do
     case $opt in
         f)
+            force=1
             IFS=' ' read -ra ADDR <<< "$OPTARG"
             for i in "${ADDR[@]}"; do
                 case "$i" in
@@ -71,6 +72,14 @@ while getopts "f:arpdrc" opt; do
             ;;
     esac
 done
+
+# If no flags were set, set all flags to 1
+if [ $force -eq 0 ]; then
+    rc=1
+    r=1
+    p=1
+    d=1
+fi
 
 # Move the files to their destinations
 if [ -f "/etc/$(basename $localfile_path)" ] && [ $rc -eq 1 ]; then
