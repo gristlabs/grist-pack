@@ -82,7 +82,7 @@ fi
 if [  -f "$instalation_path/$(basename $restartgrist_path)" ] && [ $r -eq 1 ]; then
     mv -f "$restartgrist_path" $instalation_path
     echo "Moved: $restartgrist_path"
-elif [ -f "$instalation_path/$(basename $restartgrist_path)"]; then
+elif [ -f "$instalation_path/$(basename $restartgrist_path)" ]; then
     echo "File already exists and was not moved: $restartgrist_path"
 fi
 
