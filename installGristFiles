@@ -38,31 +38,32 @@ p=0
 d=0
 
 # Parse command-line options
-# -f: force flag, if set, files will be moved even if they already exist at the destination
-# -a: all flag, if set, all files will be moved
-# -r: restartGrist flag, if set, the restartGrist file will be moved
-# -p: gristParameters flag, if set, the gristParameters file will be moved
-# -d: dex.yaml flag, if set, the dex.yaml file will be moved
-# -rc: rc.local flag, if set, the rc.local file will be moved
 while getopts "f:arpdrc" opt; do
     case $opt in
-        a)
-            rc=1
-            r=1
-            p=1
-            d=1
-            ;;
-        r)
-            r=1
-            ;;
-        p)
-            p=1
-            ;;
-        d)
-            d=1
-            ;;
-        rc)
-            rc=1
+        f)
+            IFS=' ' read -ra ADDR <<< "$OPTARG"
+            for i in "${ADDR[@]}"; do
+                case "$i" in
+                    a)
+                        rc=1
+                        r=1
+                        p=1
+                        d=1
+                        ;;
+                    r)
+                        r=1
+                        ;;
+                    p)
+                        p=1
+                        ;;
+                    d)
+                        d=1
+                        ;;
+                    rc)
+                        rc=1
+                        ;;
+                esac
+            done
             ;;
         \?)
             echo "Invalid option: -$OPTARG" >&2
