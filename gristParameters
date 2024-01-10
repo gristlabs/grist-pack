@@ -13,3 +13,13 @@ TEAM_NAME=cool-beans
 # please enter it in format: https://yourdomain.com (without slash at the end)
 
 #URL='https://dfsdf.com'
+
+#Google App data fro OAuth2
+#You can get it from https://console.developers.google.com/apis/credentials
+#GOOGLE_CLIENT_ID= 
+#GOOGLE_CLIENT_SECRET= 
+
+#MS App data fro OAuth2
+#You can get it from https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade
+#MS_CLIENT_ID=
+#MS_CLIENT_SECRET=

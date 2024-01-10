@@ -28,20 +28,23 @@ oauth2:
   skipApprovalScreen: false
 
 connectors:
-
+{{if .Env.GOOGLE_CLIENT_ID }}
  - type: google
    id: google
    name: Google
    config:
      issuer: https://accounts.google.com
-     clientID: [Client ID]
-     clientSecret: [Secret]
+     clientID: {{.Env.GOOGLE_CLIENT_ID}}
+     clientSecret: {{.Env.GOOGLE_CLIENT_SECRET}}
      redirectURI: '{{ getenv "APP_HOME_URL" }}/dex/callback'
+{{end}}
 
+{{ if .Env.MS_CLIENT_ID }}
  - type: microsoft
    id: microsoft
    name: Microsoft
    config:
-     clientID: [Client ID]
-     clientSecret: [Secret]
+     clientID: {{.Env.MS_CLIENT_ID }}
+     clientSecret: {{.Env.MS_CLIENT_SECRET }}
      redirectURI: '{{ getenv "APP_HOME_URL" }}/dex/callback'
+{{end}}
