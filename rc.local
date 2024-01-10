@@ -65,9 +65,7 @@ fi
 DOCKER_CMD="docker run \
 -p 80:80 \
 -p 443:443 \
--e URL=\"${URL}\" \
--e TEAM=\"${TEAM_NAME}\" \
--e EMAIL=${ADMIN_EMAIL} \
+--env-file /home/ubuntu/grist/gristParameters \
 -e GRIST_SANDBOX_FLAVOR=gvisor \
 ${PASSWORD_OPTION} \
 ${HTTPS_OPTION} \
