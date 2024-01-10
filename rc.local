@@ -26,22 +26,22 @@ DOMAIN=$(curl -H "X-aws-ec2-metadata-token: ${TOKEN}" http://169.254.169.254/lat
 
 DEX_SCRIPT=""
 # Check if ADMIN_EMAIL is set. If not, use instance name as email domain
-if [ -z "$ADMIN_EMAIL" ]; then
+if [ -z "$EMAIL" ]; then
   # Get instance name and set it as email domain
-  ADMIN_EMAIL="admin@${DOMAIN}"
+  EMAIL="admin@${DOMAIN}"
 else
   DEX_SCRIPT="-v $instalation_path/dex.yaml:/custom/dex.yaml"
 fi
 
 # Check if ADMIN_EMAIL is set. If not, use instance name as email domain
 PASSWORD_OPTION=""
-if [ -n "$ADMIN_EMAIL" ]; then
+if [ -n "$EMAIL" ]; then
   PASSWORD_OPTION="-e PASSWORD=${DOMAIN}"
 fi
 
 # Check if TEAM_NAME is set. If not, throw error
-if [ -z "$TEAM_NAME" ]; then
-  echo "Error: TEAM_NAME is not set."
+if [ -z "$TEAM" ]; then
+  echo "Error: TEAM is not set."
   exit 1
 fi
 
