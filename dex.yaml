@@ -25,7 +25,7 @@ staticClients:
 
 
 oauth2:
-  skipApprovalScreen: false
+  skipApprovalScreen: true
 
 connectors:
 {{if getenv "GOOGLE_CLIENT_ID" }}
@@ -39,7 +39,7 @@ connectors:
      redirectURI: '{{ getenv "APP_HOME_URL" }}/dex/callback'
 {{end}}
 
-{{ if .Env.MS_CLIENT_ID }}
+{{ if getenv "MS_CLIENT_ID" }}
  - type: microsoft
    id: microsoft
    name: Microsoft
