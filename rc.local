@@ -75,6 +75,7 @@ ${DEX_SCRIPT} \
 --restart on-failure \
 --quiet \
 -d \
+--pull always \
 gristlabs/grist-omnibus"
 
 # Check if --dryrun flag is set
