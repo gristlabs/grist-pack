@@ -7,7 +7,7 @@ restartgrist_path="$script_dir/restartGrist"
 gristparameters_path="$script_dir/gristParameters"
 dexyaml_path="$script_dir/dex.yaml"
 
-instalation_path="/home/ubuntu/grist"
+installation_path="/home/ubuntu/grist"
 
 #if docker is not installed, install it from installDocker
 if ! [ -x "$(command -v docker)" ]; then
@@ -33,8 +33,8 @@ for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path";
 done
 
 # Check if ~/grist exists and create it if it doesn't
-if [ ! -d $instalation_path ]; then
-    mkdir $instalation_path
+if [ ! -d $installation_path ]; then
+    mkdir $installation_path
 fi
 
 # Initialize flags
@@ -95,23 +95,25 @@ elif [ -f "/etc/$(basename $localfile_path)" ]; then
     echo "File already exists and was not moved: $localfile_path to /etc/$(basename $localfile_path)"
 fi
 
-if [ ! -f "$instalation_path/$(basename $restartgrist_path)" -o $force -eq 1 ] && [ $r -eq 1 ]; then
-    cp -f "$restartgrist_path" $instalation_path
-    echo "Moved: $restartgrist_path to $instalation_path/$(basename $restartgrist_path)"
-elif [ -f "$instalation_path/$(basename $restartgrist_path)" ]; then
-    echo "File already exists and was not moved: $restartgrist_path to $instalation_path/$(basename $restartgrist_path)"
+if [ ! -f "$installation_path/$(basename $restartgrist_path)" -o $force -eq 1 ] && [ $r -eq 1 ]; then
+    cp -f "$restartgrist_path" $installation_path
+    echo "Moved: $restartgrist_path to $installation_path/$(basename $restartgrist_path)"
+elif [ -f "$installation_path/$(basename $restartgrist_path)" ]; then
+    echo "File already exists and was not moved: $restartgrist_path to $installation_path/$(basename $restartgrist_path)"
 fi
 
-if [ ! -f "$instalation_path/$(basename $gristparameters_path)" -o $force -eq 1 ] && [ $p -eq 1 ]; then
-    cp -f "$gristparameters_path" $instalation_path
-    echo "Moved: $gristparameters_path to $instalation_path/$(basename $gristparameters_path)"
-elif [ -f "$instalation_path/$(basename $gristparameters_path)" ]; then
-    echo "File already exists and was not moved: $gristparameters_path to $instalation_path/$(basename $gristparameters_path)"
+if [ ! -f "$installation_path/$(basename $gristparameters_path)" -o $force -eq 1 ] && [ $p -eq 1 ]; then
+    cp -f "$gristparameters_path" $installation_path
+    echo "Moved: $gristparameters_path to $installation_path/$(basename $gristparameters_path)"
+elif [ -f "$installation_path/$(basename $gristparameters_path)" ]; then
+    echo "File already exists and was not moved: $gristparameters_path to $installation_path/$(basename $gristparameters_path)"
 fi
 
-if [ ! -f "$instalation_path/$(basename $dexyaml_path)" -o $force -eq 1 ] && [ $d -eq 1 ]; then
-    cp -f "$dexyaml_path" $instalation_path
-    echo "Moved: $dexyaml_path to $instalation_path/$(basename $dexyaml_path)"
-elif [ -f "$instalation_path/$(basename $dexyaml_path)" ]; then
-    echo "File already exists and was not moved: $dexyaml_path to $instalation_path/$(basename $dexyaml_path)"
+if [ ! -f "$installation_path/$(basename $dexyaml_path)" -o $force -eq 1 ] && [ $d -eq 1 ]; then
+    cp -f "$dexyaml_path" $installation_path
+    echo "Moved: $dexyaml_path to $installation_path/$(basename $dexyaml_path)"
+elif [ -f "$installation_path/$(basename $dexyaml_path)" ]; then
+    echo "File already exists and was not moved: $dexyaml_path to $installation_path/$(basename $dexyaml_path)"
 fi
+
+echo "Done."
