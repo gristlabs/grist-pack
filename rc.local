@@ -1,15 +1,17 @@
 #!/bin/bash
 
 instalation_path="/home/ubuntu/grist"
-# Check if gristParameters  file exists and is readable
+temp_docker_file="/tmp/docker-params"
+# Check if gristParameters file exists and is readable
 if [ ! -r $instalation_path/gristParameters ]; then
-  echo "Error: gristParameters  file does not exist or is not readable."
+  echo "Error: gristParameters file does not exist or is not readable."
   exit 1
 fi
 
-# Read variables from gristParameters  file
+# Read variables from gristParameters file and write them to /tmp/docker-params
 set -a
 source "$instalation_path/gristParameters"
+grep -v '^#' grist/gristParameters | xargs > $temp_docker_file
 set +a
 
 # Get token for accessing AWS EC2 metadata
@@ -29,6 +31,7 @@ DEX_SCRIPT=""
 if [ -z "$EMAIL" ]; then
   # Get instance name and set it as email domain
   EMAIL="admin@${DOMAIN}"
+  echo "EMAIL=$EMAIL" >> $temp_docker_file
 else
   DEX_SCRIPT="-v $instalation_path/dex.yaml:/custom/dex.yaml"
 fi
@@ -51,6 +54,7 @@ if [ -z "$URL" ]
 then
   echo "URL is not set. Using public URL"
   URL="http://${DOMAIN}"
+  echo "URL=$URL" >> $temp_docker_file
   echo "URL set to $URL"
 fi
 
@@ -62,10 +66,12 @@ else
     echo "https is not set"
 fi
 
+
+
 DOCKER_CMD="docker run \
 -p 80:80 \
 -p 443:443 \
---env-file "$instalation_path/gristParameters" \
+--env-file "$temp_docker_file" \
 -e GRIST_SANDBOX_FLAVOR=gvisor \
 ${PASSWORD_OPTION} \
 ${HTTPS_OPTION} \
@@ -81,10 +87,8 @@ gristlabs/grist-omnibus"
 # Check if --dryrun flag is set
 if [ "$1" == "--dryrun" ]; then
   echo "Running script in dry run mode."
-  echo "URL: $URL"
-  echo "TEAM_NAME: $TEAM_NAME"
-  echo "ADMIN_EMAIL: $ADMIN_EMAIL"
-  echo "HTTPS_OPTION: $HTTPS_OPTION"
+  echo "docker params file:"
+  cat $temp_docker_file
   echo "The Docker command would be:"
   echo "$DOCKER_CMD"
   exit 0

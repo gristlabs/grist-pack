@@ -9,6 +9,12 @@ dexyaml_path="$script_dir/dex.yaml"
 
 instalation_path="/home/ubuntu/grist"
 
+#if docker is not installed, install it from installDocker
+if ! [ -x "$(command -v docker)" ]; then
+    echo "Docker is not installed. Installing docker..."
+    sudo bash "$script_dir/installDocker"
+fi
+
 # Check if the files exist
 for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path" "$dexyaml_path"; do
     if [ ! -f "$file_path" ]; then

@@ -1,8 +1,9 @@
 
 #Email adress of the admin 
 #- it will be used to create the admin user, and to generate ssl certificate
-
-#EMAIL=
+# use it like this: EMAIL='admin@yourdomain'
+#leving it empty will result in using instance name as email domain 
+EMAIL='admin@yourdomain'
 
 # name of the team - it will be visible in grist app
 
@@ -11,8 +12,9 @@ TEAM=cool-beans
 # URL to the app. If it's not set, use public URL. It need to be set to generate ssl certificate
 # and create share link by grist. If it's not set, it will be set to public URL
 # please enter it in format: https://yourdomain.com (without slash at the end)
-
-#URL='https://dfsdf.com'
+# use it like this: URL='https://yourdomain.com'
+# leving it empty will result in using public dns name of the instance as url
+#URL='https://yourdomain.com'
 
 #Google App data fro OAuth2
 #You can get it from https://console.developers.google.com/apis/credentials
