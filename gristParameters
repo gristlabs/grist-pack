@@ -3,7 +3,7 @@
 #- it will be used to create the admin user, and to generate ssl certificate
 # use it like this: EMAIL='admin@yourdomain'
 #leving it empty will result in using instance name as email domain 
-EMAIL='admin@yourdomain'
+#EMAIL='admin@yourdomain'
 
 # name of the team - it will be visible in grist app
 
