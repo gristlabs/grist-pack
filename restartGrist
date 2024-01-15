@@ -1,16 +1,35 @@
-# it can take cleanDex flag. with it, it will celan dex database (deleting it from /tmp/grist-temp) before restarting the container
 #!/bin/bash
-temp_path="/tmp/grist-test"
+
+installation_path="/home/ubuntu/grist"
+
+# it can take "clean" flag. with it, it will clean dex database (deleting it from $STORAGE) before restarting the container
+
+# Check if gristParameters  file exists and is readable
+if [ ! -r $installation_path/gristParameters ]; then
+  echo "Error: gristParameters file does not exist or is not readable."
+  exit 1
+fi
+
+# Read variables from gristParameters file
+source $installation_path/gristParameters
+
+# Check if STORAGE is set. If not, throw error
+if [ -z "$STORAGE" ]; then
+  echo "STORAGE environment variable not set."
+  exit 1
+fi
+
+
 # Check if the script received the cleanDex flag
 if [ "$1" = "clean" ]; then
     # If so, delete the dex database
     echo "Cleaning database..."
-    rm -rf "$temp_path/auth"
+    rm -rf "$STORAGE/auth"
     if [ $? -ne 0 ]; then
         echo "Failed to clean dex database."
         exit 1
     fi
-    rm -rf "$temp_path/home.sqlite3"
+    rm -rf "$STORAGE/home.sqlite3"
     if [ $? -ne 0 ]; then
         echo "Failed to clean grist database."
         exit 1

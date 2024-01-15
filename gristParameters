@@ -25,3 +25,6 @@ TEAM=cool-beans
 #You can get it from https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade
 #MS_CLIENT_ID=
 #MS_CLIENT_SECRET=
+
+# Path to Grist storage
+STORAGE=$HOME/grist-persist

@@ -48,6 +48,13 @@ if [ -z "$TEAM" ]; then
   exit 1
 fi
 
+# Check if STORAGE is set. If not, throw error
+if [ -z "$STORAGE" ]; then
+  echo "STORAGE environment variable not set."
+  exit 1
+fi
+
+
 # Optional parameters:
 # URL to the app. If it's not set, use public URL
 if [ -z "$URL" ]
@@ -75,7 +82,7 @@ DOCKER_CMD="docker run \
 -e GRIST_SANDBOX_FLAVOR=gvisor \
 ${PASSWORD_OPTION} \
 ${HTTPS_OPTION} \
--v /tmp/grist-test:/persist \
+-v ${STORAGE}:/persist \
 ${DEX_SCRIPT} \
 --name grist \
 --restart on-failure \
