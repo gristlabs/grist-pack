@@ -15,6 +15,14 @@ if ! [ -x "$(command -v docker)" ]; then
     sudo bash "$script_dir/installDocker"
 fi
 
+# Check if Golang is installed
+if ! [ -x "$(command -v go)" ]; then
+    echo "Golang is not installed. Installing Golang..."
+    sudo apt-get update -y
+    sudo apt-get install -y golang
+fi
+
+
 # Check if the files exist
 for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path" "$dexyaml_path"; do
     if [ ! -f "$file_path" ]; then

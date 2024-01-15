@@ -19,8 +19,10 @@ fi
 
 # stop and remove all runing containers
 sudo docker stop $(sudo docker ps -a -q)
+
 #clean grist data
 sudo rm -rf $STORAGE
+
 #disable root login
 sudo passwd -l root
 # shred ssh keys
