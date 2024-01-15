@@ -1,7 +1,7 @@
 # stop and remove all runing containers
 sudo docker stop $(sudo docker ps -a -q)
 #clean grist temp data 
-sudo rm -rf /tmp/grist-test
+sudo rm -rf /grist/grist-test
 #disable root login
 sudo passwd -l root
 # shred ssh keys
