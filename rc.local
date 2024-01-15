@@ -11,7 +11,7 @@ fi
 # Read variables from gristParameters file and write them to /tmp/docker-params
 set -a
 source "$instalation_path/gristParameters"
-grep -v '^#' $instalation_path/gristParameters | xargs > $temp_docker_file
+grep -v '^#' $instalation_path/gristParameters | xargs -n1 > $temp_docker_file
 set +a
 
 # Get token for accessing AWS EC2 metadata
