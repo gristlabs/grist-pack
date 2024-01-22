@@ -27,4 +27,4 @@ TEAM=cool-beans
 #MS_CLIENT_SECRET=
 
 # Path to Grist storage
-STORAGE=$HOME/grist-persist
+STORAGE=/home/ubuntu/grist-persist
