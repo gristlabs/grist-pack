@@ -26,17 +26,23 @@ INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: ${TOKEN}" http://169.254.169.25
   exit 1
 }
 
+# Get domain
+DOMAIN=$(curl -H "X-aws-ec2-metadata-token: ${TOKEN}" http://169.254.169.254/latest/meta-data/public-hostname) || {
+  echo "Error: Failed to get domain."
+  exit 1
+}
+
 DEX_SCRIPT=""
 # Check if ADMIN_EMAIL is set. If not, use instance name as email domain
 if [ -z "$EMAIL" ]; then
-  # Get instance name and set it as email domain
+  # Set email to default, persited value
   EMAIL="admin@example.getgrist.com"
   echo "EMAIL=$EMAIL" >> $temp_docker_file
 else
   DEX_SCRIPT="-v $instalation_path/dex.yaml:/custom/dex.yaml"
 fi
 
-# Check if ADMIN_EMAIL is set. If not, use instance name as email domain
+# Check if EMAIL is set. If it is, use instance name as passowrd
 PASSWORD_OPTION=""
 if [ -n "$EMAIL" ]; then
   PASSWORD_OPTION="-e PASSWORD=${INSTANCE_ID}"
