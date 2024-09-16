@@ -1,0 +1,87 @@
+secrets:
+  # These secrets are used by Authelia
+  JWT_SECRET:
+    file: ${SECRETS_DIR}/JWT_SECRET
+  SESSION_SECRET:
+    file: ${SECRETS_DIR}/SESSION_SECRET
+  STORAGE_ENCRYPTION_KEY:
+    file: ${SECRETS_DIR}/STORAGE_ENCRYPTION_KEY
+  # These secrets are for using Authelia as an OIDC provider
+  HMAC_SECRET:
+    file: ${SECRETS_DIR}/HMAC_SECRET
+  JWT_PRIVATE_KEY:
+    file: ${SECRETS_DIR}/certs/private.pem
+  GRIST_CLIENT_SECRET_DIGEST:
+    file: ${SECRETS_DIR}/GRIST_CLIENT_SECRET_DIGEST
+
+services:
+  traefik:
+    image: traefik:latest
+    ports:
+      # HTTP Ports
+      - "80:80"
+      - "443:443"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+      - "8082:8082"
+    volumes:
+      # Set the config file for traefik - this is loaded automatically.
+      - ./config/traefik/config.yml:/etc/traefik/traefik.yml
+      # Certificate location, if automatic certificate setup is enabled.
+      - ./config/secrets/acme_certificates:/acme
+      # Traefik needs docker access when configured via docker labels.
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      default:
+        aliases:
+          # Enables Grist to resolve this domain to Traefik when doing OIDC setup.
+          - ${AUTHELIA_SUBDOMAIN}.${GRIST_DOMAIN}
+
+  dex:
+    restart: always
+    container_name: dex
+    image: dexidp/dex:latest
+    volumes:
+      - ./config/dex.yaml:/etc/dex/config.yaml
+    ports:
+      - 5556:5556
+    environment:
+      APP_HOME_URL: ${APP_HOME_URL}
+      GRIST_OIDC_IDP_CLIENT_ID: ${GRIST_OIDC_IDP_CLIENT_ID}
+      GRIST_OIDC_IDP_CLIENT_SECRET: ${GRIST_OIDC_IDP_CLIENT_SECRET}
+
+  authelia:
+    image: authelia/authelia:4
+    secrets:
+      - HMAC_SECRET
+      - JWT_SECRET
+      - JWT_PRIVATE_KEY
+      - GRIST_CLIENT_SECRET_DIGEST
+      - SESSION_SECRET
+      - STORAGE_ENCRYPTION_KEY
+    environment:
+      AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE: '/run/secrets/JWT_SECRET'
+      AUTHELIA_SESSION_SECRET_FILE: '/run/secrets/SESSION_SECRET'
+      AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: '/run/secrets/STORAGE_ENCRYPTION_KEY'
+      HMAC_SECRET_FILE: '/run/secrets/HMAC_SECRET'
+      JWT_PRIVATE_KEY_FILE: '/run/secrets/JWT_PRIVATE_KEY'
+      # Domain Grist is hosted at. Custom variable that's interpolated into the Authelia config
+      APP_DOMAIN: ${GRIST_DOMAIN}
+      # Where Authelia should redirect to after successful authentication.
+      GRIST_OAUTH_CALLBACK_URL: https://${GRIST_DOMAIN}/oauth2/callback
+      # Hash of the client secret provided to Grist.
+      GRIST_CLIENT_SECRET_DIGEST_FILE: "/run/secrets/GRIST_CLIENT_SECRET_DIGEST"
+    volumes:
+      - ./config/authelia:/config
+      - ${PERSIST_DIR}/authelia:/persist
+    command:
+      - 'authelia'
+      - '--config=/config/configuration.yml'
+      # Enables templating in the config file
+      - '--config.experimental.filters=template'
+    labels:
+      - "traefik.http.services.authelia.loadbalancer.server.port=9091"
+      - "traefik.http.routers.authelia.rule=Host(`${AUTHELIA_DOMAIN}`)"
+      - "traefik.http.routers.authelia.service=authelia"
+      # Uncomment and configure in traefik-config.yml to enable automatic HTTPS certificate setup.
+      #- "traefik.http.routers.authelia.tls.certresolver=letsencrypt"

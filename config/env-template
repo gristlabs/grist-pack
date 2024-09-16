@@ -1,0 +1,6 @@
+GRIST_DOMAIN=grist.localhost
+AUTHELIA_SUBDOMAIN=authelia
+DEFAULT_EMAIL=test@example.org
+PERSIST_DIR=./persist
+SECRETS_DIR=./config/secrets
+GRIST_CLIENT_SECRET=
