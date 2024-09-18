@@ -1260,7 +1260,7 @@ identity_providers:
 
         ## The client secret is a shared secret between Authelia and the consumer of this client.
         # yamllint disable-line rule:line-length
-        client_secret: {{ secret (mustEnv "GRIST_CLIENT_SECRET_DIGEST_FILE") }}
+        client_secret: {{ secret (mustEnv "DEX_CLIENT_SECRET_DIGEST_FILE") }}
 
         ## Sector Identifiers are occasionally used to generate pairwise subject identifiers. In most cases this is not
         ## necessary. It is critical to read the documentation for more information.
@@ -1271,7 +1271,7 @@ identity_providers:
 
         ## Redirect URI's specifies a list of valid case-sensitive callbacks for this client.
         redirect_uris:
-          - {{ mustEnv "GRIST_OAUTH_CALLBACK_URL" | quote }}
+          - {{ mustEnv "DEX_OAUTH_CALLBACK_URL" | quote }}
 
         ## Request URI's specifies a list of valid case-sensitive TLS-secured URIs for this client for use as
         ## URIs to fetch Request Objects.
