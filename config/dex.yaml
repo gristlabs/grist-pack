@@ -1,4 +1,4 @@
-issuer: 'https://{{ getenv "DEX_DOMAIN" }}'
+issuer: '{{ getenv "APP_HOME_URL" }}/dex'
 
 storage:
   type: sqlite3
@@ -32,10 +32,10 @@ connectors:
     id: authelia
     name: Authelia
     config:
-      issuer: 'http://authelia:9091'
+      issuer: '{{ getenv "APP_HOME_URL" }}/authelia'
       clientID: 'dex-local'
       clientSecret: '{{ getenv "DEX_CLIENT_SECRET_DIGEST" }}'
-      redirectURI: 'https://{{ getenv "DEX_DOMAIN" }}/callback'
+      redirectURI: '{{ getenv "APP_HOME_URL" }}/dex/callback'
 
   - type: google
     id: google

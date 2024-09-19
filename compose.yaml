@@ -25,22 +25,23 @@ services:
       # The Web UI (enabled by --api.insecure=true)
       - "8080:8080"
       - "8082:8082"
+    command:
+      - '--providers.file.filename=/settings/traefik.yaml'
+      - '--entryPoints.web.address=:80'
     volumes:
-      # Set the config file for traefik - this is loaded automatically.
-      - ./config/traefik/config.yml:/etc/traefik/traefik.yml
-      # Certificate location, if automatic certificate setup is enabled.
+      - ./config/traefik.yaml:/settings/traefik.yaml
       - ./config/secrets/acme_certificates:/acme
-      # Traefik needs docker access when configured via docker labels.
-      - /var/run/docker.sock:/var/run/docker.sock
 
   grist:
     container_name: grist
     image: gristlabs/grist:latest
+    ports:
+      - 8484:8484
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
 
       #GRIST_OIDC_SP_HOST: https://${DEX_DOMAIN}
-      GRIST_OIDC_IDP_ISSUER: http://dex:5556
+      GRIST_OIDC_IDP_ISSUER: http://dex:5556/dex
       GRIST_OIDC_IDP_CLIENT_ID: ${GRIST_OIDC_IDP_CLIENT_ID}
       GRIST_OIDC_IDP_CLIENT_SECRET: ${GRIST_OIDC_IDP_CLIENT_SECRET}
       GRIST_OIDC_IDP_END_SESSION_ENDPOINT: ${APP_HOME_URL}/signed-out
@@ -56,12 +57,6 @@ services:
     volumes:
       # Where to store persistent data, such as documents.
       - ${PERSIST_DIR}/grist:/persist
-    labels:
-      - "traefik.http.services.grist.loadbalancer.server.port=8484"
-      - "traefik.http.routers.grist.rule=Host(`${GRIST_DOMAIN}`)"
-      - "traefik.http.routers.grist.service=grist"
-      # Uncomment and configure in traefik-config.yml to enable automatic HTTPS certificate setup.
-      #- "traefik.http.routers.grist.tls.certresolver=letsencrypt"
     depends_on:
       traefik:
         condition: service_started
@@ -83,10 +78,6 @@ services:
       GRIST_OIDC_IDP_CLIENT_SECRET: ${GRIST_OIDC_IDP_CLIENT_SECRET}
       DEX_CLIENT_SECRET_DIGEST: ${DEX_CLIENT_SECRET_DIGEST}
       DEX_DOMAIN: ${DEX_DOMAIN}
-    labels:
-      - "traefik.http.services.dex.loadbalancer.server.port=5556"
-      - "traefik.http.routers.dex.rule=Host(`dex.localhost`)"
-      - "traefik.http.routers.dex.service=dex"
     depends_on:
       authelia:
         condition: service_healthy
@@ -108,7 +99,7 @@ services:
       HMAC_SECRET_FILE: '/run/secrets/HMAC_SECRET'
       JWT_PRIVATE_KEY_FILE: '/run/secrets/JWT_PRIVATE_KEY'
       # Domain Dex is hosted at. Custom variable that's interpolated into the Authelia config
-      APP_DOMAIN: ${DEX_DOMAIN}
+      APP_DOMAIN: 127.0.0.1
       # Where Authelia should redirect to after successful authentication.
       DEX_OAUTH_CALLBACK_URL: 'https://${DEX_DOMAIN}/oauth2/callback'
       # Hash of the client secret provided to Dex.
@@ -121,9 +112,3 @@ services:
       - '--config=/config/configuration.yml'
       # Enables templating in the config file
       - '--config.experimental.filters=template'
-    labels:
-      - "traefik.http.services.authelia.loadbalancer.server.port=9091"
-      - "traefik.http.routers.authelia.rule=Host(`${AUTHELIA_DOMAIN}`)"
-      - "traefik.http.routers.authelia.service=authelia"
-      # Uncomment and configure in traefik-config.yml to enable automatic HTTPS certificate setup.
-      #- "traefik.http.routers.authelia.tls.certresolver=letsencrypt"
