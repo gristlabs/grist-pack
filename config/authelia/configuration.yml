@@ -1253,7 +1253,7 @@ identity_providers:
       -
         ## The Client ID is the OAuth 2.0 and OpenID Connect 1.0 Client ID which is used to link an application to a
         ## configuration.
-        client_id: 'grist-local'
+        client_id: 'dex-local'
 
         ## The description to show to users when they end up on the consent screen. Defaults to the ID above.
         client_name: 'Grist'

@@ -35,22 +35,17 @@ services:
   grist:
     container_name: grist
     image: gristlabs/grist:latest
-    ports:
-      - 8484:8484
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
 
-      #GRIST_OIDC_SP_HOST: https://${DEX_DOMAIN}
-      GRIST_OIDC_IDP_ISSUER: http://dex:5556/dex
-      GRIST_OIDC_IDP_CLIENT_ID: ${GRIST_OIDC_IDP_CLIENT_ID}
-      GRIST_OIDC_IDP_CLIENT_SECRET: ${GRIST_OIDC_IDP_CLIENT_SECRET}
-      GRIST_OIDC_IDP_END_SESSION_ENDPOINT: ${APP_HOME_URL}/signed-out
+      GRIST_OIDC_IDP_ISSUER: '${APP_HOME_URL}/dex'
+      GRIST_OIDC_IDP_CLIENT_ID: '${GRIST_OIDC_IDP_CLIENT_ID}'
+      GRIST_OIDC_IDP_CLIENT_SECRET: '${GRIST_OIDC_IDP_CLIENT_SECRET}'
+      GRIST_OIDC_IDP_END_SESSION_ENDPOINT: '${APP_HOME_URL}/signed-out'
 
       # Working with multiple teams is possible but a little harder to
       # explain and understand, and the UI has rough edges.
       GRIST_SINGLE_ORG: ${TEAM}
-      # Force users to login (disable anonymous access)
-      GRIST_FORCE_LOGIN: false
       # Default email for the "Admin" account
       GRIST_DEFAULT_EMAIL: ${DEFAULT_EMAIL:-test@example.org}
     restart: always
@@ -61,7 +56,9 @@ services:
       traefik:
         condition: service_started
       dex:
-        condition: service_started
+        condition: service_healthy
+    links:
+      - "traefik:${GRIST_DOMAIN}"
   
   dex:
     restart: always
@@ -70,17 +67,21 @@ services:
     volumes:
       - ./config/dex.yaml:/etc/dex/config.docker.yaml
       - ./${PERSIST_DIR}/auth/:/persist/auth
-    ports:
-      - 5556:5556
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
       GRIST_OIDC_IDP_CLIENT_ID: ${GRIST_OIDC_IDP_CLIENT_ID}
       GRIST_OIDC_IDP_CLIENT_SECRET: ${GRIST_OIDC_IDP_CLIENT_SECRET}
-      DEX_CLIENT_SECRET_DIGEST: ${DEX_CLIENT_SECRET_DIGEST}
-      DEX_DOMAIN: ${DEX_DOMAIN}
+      DEX_CLIENT_SECRET: ${DEX_CLIENT_SECRET}
     depends_on:
       authelia:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://127.0.0.1:5556/dex/healthz"]
+      interval: 2s
+      timeout: 60s
+      retries: 20
+    links:
+      - "traefik:${GRIST_DOMAIN}"
 
   authelia:
     container_name: authelia
@@ -98,10 +99,10 @@ services:
       AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: '/run/secrets/STORAGE_ENCRYPTION_KEY'
       HMAC_SECRET_FILE: '/run/secrets/HMAC_SECRET'
       JWT_PRIVATE_KEY_FILE: '/run/secrets/JWT_PRIVATE_KEY'
-      # Domain Dex is hosted at. Custom variable that's interpolated into the Authelia config
-      APP_DOMAIN: 127.0.0.1
+      # Domain Grist is hosted at. Custom variable that's interpolated into the Authelia config
+      APP_DOMAIN: ${GRIST_DOMAIN}
       # Where Authelia should redirect to after successful authentication.
-      DEX_OAUTH_CALLBACK_URL: 'https://${DEX_DOMAIN}/oauth2/callback'
+      DEX_OAUTH_CALLBACK_URL: '${APP_HOME_URL}/dex/callback'
       # Hash of the client secret provided to Dex.
       DEX_CLIENT_SECRET_DIGEST_FILE: "/run/secrets/DEX_CLIENT_SECRET_DIGEST"
     volumes:
