@@ -14,9 +14,12 @@ entrypoints:
           to: "websecure"
           scheme: "https"
 
+{{ $use_https := env "TRAEFIK_ENABLE_DASHBOARD" }}
+{{ if eq $use_https "true" }}
 api:
   insecure: true
   dashboard: true
+{{ end }}
 
 http:
   services:
@@ -33,12 +36,6 @@ http:
         servers:
           - url: 'http://authelia:9091'
 
-  middlewares:
-    no-fwd:
-      headers:
-        customRequestHeaders:
-          'X-Forwarded-User': ""
-
   routers:
     route-grist-login:
       rule: "PathPrefix(`/auth/login`) || PathPrefix(`/_oauth`)"
@@ -50,8 +47,6 @@ http:
       rule: "PathPrefix(`/`)"
       priority: 1   # Set a lower priority than the other rules
       service: grist
-      middlewares:
-        - no-fwd
       entryPoints:
         - web
 
@@ -70,44 +65,42 @@ http:
 {{ $use_https := env "USE_HTTPS" }}
 {{if eq $use_https "true" }}
     https-route-grist-login:
-      rule: 'Host(`{{ env "APP_HOST" }}`) && (PathPrefix(`/auth/login`) || PathPrefix(`/_oauth`))'
+      rule: 'Host(`{{ env "GRIST_HOST" }}`) && (PathPrefix(`/auth/login`) || PathPrefix(`/_oauth`))'
       service: grist
       entryPoints:
         - websecure
       tls: {{ env "TLS" }}
 
     https-route-grist:
-      rule: 'Host(`{{ env "APP_HOST" }}`) && PathPrefix(`/`)'
+      rule: 'Host(`{{ env "GRIST_HOST" }}`) && PathPrefix(`/`)'
       priority: 1   # Set a lower priority than the other rules
       service: grist
-      middlewares:
-        - no-fwd
       entryPoints:
         - websecure
       tls: {{ env "TLS" }}
 
     https-route-dex:
-      rule: 'Host(`{{ env "APP_HOST" }}`) && (PathPrefix(`/dex/`) || Path(`/dex`))'
+      rule: 'Host(`{{ env "GRIST_HOST" }}`) && (PathPrefix(`/dex/`) || Path(`/dex`))'
       service: dex
       entryPoints:
         - websecure
       tls: {{ env "TLS" }}
 
-    https-route-who:
-      rule: 'Host(`{{ env "APP_HOST" }}`) && Path(`/who`)'
-      service: whoami
+    https-route-authelia:
+      rule: 'Host(`{{ env "GRIST_HOST" }}`) && (PathPrefix(`/authelia/`) || Path(`/authelia`))'
+      service: authelia
       entryPoints:
         - websecure
-      tls: true
+      tls: {{ env "TLS" }}
 {{end}}
 
 
-{{ $https := env "HTTPS" }}
+{{ $https := env "HTTPS_METHOD" }}
 {{if eq $https "manual"}}
 tls:
   stores:
     default:
       defaultCertificate:
-        certFile: /custom/grist.crt
-        keyFile: /custom/grist.key
+        certFile: /persist/traefik/grist.crt
+        keyFile: /persist/traefik/grist.key
 {{end}}
