@@ -1,0 +1,131 @@
+secrets:
+  # These secrets are used by Authelia
+  JWT_SECRET:
+    file: ${SECRETS_DIR}/JWT_SECRET
+  SESSION_SECRET:
+    file: ${SECRETS_DIR}/SESSION_SECRET
+  STORAGE_ENCRYPTION_KEY:
+    file: ${SECRETS_DIR}/STORAGE_ENCRYPTION_KEY
+  # These secrets are for using Authelia as an OIDC provider
+  HMAC_SECRET:
+    file: ${SECRETS_DIR}/HMAC_SECRET
+  JWT_PRIVATE_KEY:
+    file: ${SECRETS_DIR}/certs/private.pem
+  DEX_CLIENT_SECRET_DIGEST:
+    file: ${SECRETS_DIR}/DEX_CLIENT_SECRET_DIGEST
+
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:latest
+    ports:
+      # HTTP Ports
+      - "80:80"
+      - "443:443"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+      - "8082:8082"
+    command:
+      - '--providers.file.filename=/settings/traefik.yaml'
+      - '--entryPoints.web.address=:80'
+    volumes:
+      - ./config/traefik.yaml:/settings/traefik.yaml
+      - ./config/secrets/acme_certificates:/acme
+
+  grist:
+    container_name: grist
+    image: gristlabs/grist:latest
+    environment:
+      APP_HOME_URL: ${APP_HOME_URL}
+
+      GRIST_OIDC_IDP_ISSUER: '${APP_HOME_URL}/dex'
+      GRIST_OIDC_IDP_CLIENT_ID: '${GRIST_OIDC_IDP_CLIENT_ID}'
+      GRIST_OIDC_IDP_CLIENT_SECRET: '${GRIST_OIDC_IDP_CLIENT_SECRET}'
+      GRIST_OIDC_IDP_END_SESSION_ENDPOINT: '${APP_HOME_URL}/signed-out'
+
+      # Working with multiple teams is possible but a little harder to
+      # explain and understand, and the UI has rough edges.
+      GRIST_SINGLE_ORG: ${TEAM}
+      # Default email for the "Admin" account
+      GRIST_DEFAULT_EMAIL: ${DEFAULT_EMAIL:-test@example.org}
+    restart: always
+    volumes:
+      # Where to store persistent data, such as documents.
+      - ${PERSIST_DIR}/grist:/persist
+    depends_on:
+      traefik:
+        condition: service_started
+      dex:
+        condition: service_healthy
+    # In order for internal OIDC requests to work regardless whether
+    # the container can access the open internet or not, redirect all
+    # GRIST_DOMAIN requests to Traefik, which can then apply its
+    # redirect rules.
+    #
+    # This way, all Docker services are on the same external URL, but
+    # will use the internal Docker network when talking to each other.
+    links:
+      - "traefik:${GRIST_DOMAIN}"
+
+  dex:
+    restart: always
+    container_name: dex
+    image: dexidp/dex:latest
+    volumes:
+      - ./config/dex.yaml:/etc/dex/config.docker.yaml
+      - ./persist:/persist
+    user: "${UID}:${GID}"
+    environment:
+      APP_HOME_URL: ${APP_HOME_URL}
+      GRIST_OIDC_IDP_CLIENT_ID: ${GRIST_OIDC_IDP_CLIENT_ID}
+      GRIST_OIDC_IDP_CLIENT_SECRET: ${GRIST_OIDC_IDP_CLIENT_SECRET}
+      DEX_CLIENT_SECRET: ${DEX_CLIENT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      MICROSOFT_CLIENT_ID: ${MICROSOFT_CLIENT_ID}
+      MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET}
+    depends_on:
+      authelia:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://127.0.0.1:5556/dex/healthz"]
+      interval: 2s
+      timeout: 60s
+      retries: 20
+    # See note above on `links` on the Grist service
+    links:
+      - "traefik:${GRIST_DOMAIN}"
+
+  authelia:
+    container_name: authelia
+    image: authelia/authelia:4
+    secrets:
+      - HMAC_SECRET
+      - JWT_SECRET
+      - JWT_PRIVATE_KEY
+      - DEX_CLIENT_SECRET_DIGEST
+      - SESSION_SECRET
+      - STORAGE_ENCRYPTION_KEY
+    environment:
+      AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE: '/run/secrets/JWT_SECRET'
+      AUTHELIA_SESSION_SECRET_FILE: '/run/secrets/SESSION_SECRET'
+      AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: '/run/secrets/STORAGE_ENCRYPTION_KEY'
+      HMAC_SECRET_FILE: '/run/secrets/HMAC_SECRET'
+      JWT_PRIVATE_KEY_FILE: '/run/secrets/JWT_PRIVATE_KEY'
+      # Domain Grist is hosted at. Custom variable that's interpolated into the Authelia config
+      APP_DOMAIN: ${GRIST_DOMAIN}
+      # Where Authelia should redirect to after successful authentication.
+      DEX_OAUTH_CALLBACK_URL: '${APP_HOME_URL}/dex/callback'
+      # Hash of the client secret provided to Dex.
+      DEX_CLIENT_SECRET_DIGEST_FILE: "/run/secrets/DEX_CLIENT_SECRET_DIGEST"
+    volumes:
+      - ./config/authelia:/config
+      - ${PERSIST_DIR}/authelia:/persist
+    command:
+      - 'authelia'
+      - '--config=/config/configuration.yml'
+      # Enables templating in the config file
+      - '--config.experimental.filters=template'
+    # See note above on `links` on the Grist service
+    links:
+      - "traefik:${GRIST_DOMAIN}"

@@ -1,0 +1,106 @@
+entrypoints:
+  # Defines a secure entrypoint using TLS encryption
+  websecure:
+    address: ":443"
+    http:
+      tls: true
+  # Defines an insecure entrypoint that redirects to the secure one.
+  web:
+    address: ":80"
+    http:
+      # Redirects HTTP to HTTPS
+      redirections:
+        entrypoint:
+          to: "websecure"
+          scheme: "https"
+
+{{ $use_https := env "TRAEFIK_ENABLE_DASHBOARD" }}
+{{ if eq $use_https "true" }}
+api:
+  insecure: true
+  dashboard: true
+{{ end }}
+
+http:
+  services:
+    grist:
+      loadBalancer:
+        servers:
+          - url: 'http://grist:8484'
+    dex:
+      loadBalancer:
+        servers:
+          - url: 'http://dex:5556'
+    authelia:
+      loadBalancer:
+        servers:
+          - url: 'http://authelia:9091'
+
+  routers:
+    route-grist-login:
+      rule: "PathPrefix(`/auth/login`) || PathPrefix(`/_oauth`)"
+      service: grist
+      entryPoints:
+        - web
+
+    route-grist:
+      rule: "PathPrefix(`/`)"
+      priority: 1   # Set a lower priority than the other rules
+      service: grist
+      entryPoints:
+        - web
+
+    route-dex:
+      rule: "PathPrefix(`/dex/`) || Path(`/dex`)"
+      service: dex
+      entryPoints:
+        - web
+
+    route-authelia:
+      rule: "PathPrefix(`/authelia/`) || Path(`/authelia`)"
+      service: authelia
+      entryPoints:
+        - web
+
+{{ $use_https := env "USE_HTTPS" }}
+{{if eq $use_https "true" }}
+    https-route-grist-login:
+      rule: 'Host(`{{ env "GRIST_HOST" }}`) && (PathPrefix(`/auth/login`) || PathPrefix(`/_oauth`))'
+      service: grist
+      entryPoints:
+        - websecure
+      tls: {{ env "TLS" }}
+
+    https-route-grist:
+      rule: 'Host(`{{ env "GRIST_HOST" }}`) && PathPrefix(`/`)'
+      priority: 1   # Set a lower priority than the other rules
+      service: grist
+      entryPoints:
+        - websecure
+      tls: {{ env "TLS" }}
+
+    https-route-dex:
+      rule: 'Host(`{{ env "GRIST_HOST" }}`) && (PathPrefix(`/dex/`) || Path(`/dex`))'
+      service: dex
+      entryPoints:
+        - websecure
+      tls: {{ env "TLS" }}
+
+    https-route-authelia:
+      rule: 'Host(`{{ env "GRIST_HOST" }}`) && (PathPrefix(`/authelia/`) || Path(`/authelia`))'
+      service: authelia
+      entryPoints:
+        - websecure
+      tls: {{ env "TLS" }}
+{{end}}
+
+
+{{ $https := env "HTTPS_METHOD" }}
+{{if eq $https "manual"}}
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /persist/traefik/grist.crt
+        keyFile: /persist/traefik/grist.key
+{{end}}
