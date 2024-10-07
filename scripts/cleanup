@@ -1,0 +1,36 @@
+#!/bin/bash
+
+installation_path="/home/ubuntu/grist"
+
+# Check if gristParameters file exists and is readable
+if [ ! -r $installation_path/gristParameters ]; then
+  echo "Error: gristParameters file does not exist or is not readable."
+  exit 1
+fi
+
+# Read variables from gristParameters file
+source $installation_path/gristParameters
+
+# Check if STORAGE is set. If not, throw error
+if [ -z "$STORAGE" ]; then
+  echo "STORAGE environment variable not set."
+  exit 1
+fi
+
+# stop and remove all runing containers
+sudo docker stop $(sudo docker ps -a -q)
+
+#clean grist data
+sudo rm -rf $STORAGE
+
+#disable root login
+sudo passwd -l root
+# shred ssh keys
+sudo shred -u /etc/ssh/*_key /etc/ssh/*_key.pub /root/.ssh/authorized_keys /home/*/.ssh/authorized_keys
+# and remove them 
+sudo rm -rf /etc/ssh/*_key /etc/ssh/*_key.pub /root/.ssh/* /home/*/.ssh/*
+
+# remove grist repository from home directory
+sudo rm -rf ~/grist-*
+# cleanu command history 
+cat /dev/null > ~/.bash_history && history -c && exit

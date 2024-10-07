@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# Define the paths to the files
+script_dir=$(dirname "$0")
+localfile_path="$script_dir/rc.local"
+restartgrist_path="$script_dir/restartGrist"
+gristparameters_path="$script_dir/gristParameters"
+dexyaml_path="$script_dir/dex.yaml"
+
+installation_path="/home/ubuntu/grist"
+
+#if docker is not installed, install it from installDocker
+if ! [ -x "$(command -v docker)" ]; then
+    echo "Docker is not installed. Installing docker..."
+    sudo bash "$script_dir/installDocker"
+fi
+
+# Check if Golang is installed
+if ! [ -x "$(command -v go)" ]; then
+    echo "Golang is not installed. Installing Golang..."
+    sudo apt-get update -y
+    sudo apt-get install -y golang
+fi
+
+
+# Check if the files exist
+for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path" "$dexyaml_path"; do
+    if [ ! -f "$file_path" ]; then
+        echo "File not found: $file_path"
+        exit 1
+    fi
+done
+
+# Add execute permissions to the files
+for file_path in "$localfile_path" "$restartgrist_path" "$gristparameters_path"; do
+    chmod +x "$file_path"
+    if [ $? -ne 0 ]; then
+        echo "Failed to change permissions for: $file_path"
+        exit 1
+    fi
+done
+
+# Check if ~/grist exists and create it if it doesn't
+if [ ! -d $installation_path ]; then
+    mkdir $installation_path
+fi
+
+# Initialize flags
+force=0
+rc=0
+r=0
+p=0
+d=0
+
+# Parse command-line options
+while getopts "f:arpdrc" opt; do
+    case $opt in
+        f)
+            force=1
+            IFS=' ' read -ra ADDR <<< "$OPTARG"
+            for i in "${ADDR[@]}"; do
+                case "$i" in
+                    a)
+                        rc=1
+                        r=1
+                        p=1
+                        d=1
+                        ;;
+                    r)
+                        r=1
+                        ;;
+                    p)
+                        p=1
+                        ;;
+                    d)
+                        d=1
+                        ;;
+                    rc)
+                        rc=1
+                        ;;
+                esac
+            done
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+    esac
+done
+
+# If no flags were set, set all flags to 1
+if [ $force -eq 0 ]; then
+    rc=1
+    r=1
+    p=1
+    d=1
+fi
+# Move the files to their destinations
+if [ ! -f "/etc/$(basename $localfile_path)" -o $force -eq 1 ] && [ $rc -eq 1 ]; then
+    cp -f "$localfile_path" /etc
+    echo "Moved: $localfile_path to /etc/$(basename $localfile_path)"
+elif [ -f "/etc/$(basename $localfile_path)" ]; then
+    echo "File already exists and was not moved: $localfile_path to /etc/$(basename $localfile_path)"
+fi
+
+if [ ! -f "$installation_path/$(basename $restartgrist_path)" -o $force -eq 1 ] && [ $r -eq 1 ]; then
+    cp -f "$restartgrist_path" $installation_path
+    echo "Moved: $restartgrist_path to $installation_path/$(basename $restartgrist_path)"
+elif [ -f "$installation_path/$(basename $restartgrist_path)" ]; then
+    echo "File already exists and was not moved: $restartgrist_path to $installation_path/$(basename $restartgrist_path)"
+fi
+
+if [ ! -f "$installation_path/$(basename $gristparameters_path)" -o $force -eq 1 ] && [ $p -eq 1 ]; then
+    cp -f "$gristparameters_path" $installation_path
+    echo "Moved: $gristparameters_path to $installation_path/$(basename $gristparameters_path)"
+elif [ -f "$installation_path/$(basename $gristparameters_path)" ]; then
+    echo "File already exists and was not moved: $gristparameters_path to $installation_path/$(basename $gristparameters_path)"
+fi
+
+if [ ! -f "$installation_path/$(basename $dexyaml_path)" -o $force -eq 1 ] && [ $d -eq 1 ]; then
+    cp -f "$dexyaml_path" $installation_path
+    echo "Moved: $dexyaml_path to $installation_path/$(basename $dexyaml_path)"
+elif [ -f "$installation_path/$(basename $dexyaml_path)" ]; then
+    echo "File already exists and was not moved: $dexyaml_path to $installation_path/$(basename $dexyaml_path)"
+fi
+
+echo "Done."

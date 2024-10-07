@@ -1,0 +1,3 @@
+*.pkrvars.hcl
+.env
+config/secrets
