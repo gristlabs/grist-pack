@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+adduser --disabled-password --gecos '' grist
+usermod -a -G sudo grist
+usermod -a -G docker grist
+mv /tmp/grist-dist/* ~grist
+chown -R grist:grist ~grist
+sudo -u grist bash -c 'cd ~ && docker compose pull'
