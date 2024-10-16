@@ -68,9 +68,23 @@ build {
     "source.digitalocean.ubuntu_do"
   ]
 
+  # Pack up and send the dist
+  provisioner "shell-local" {
+    inline = [
+      "tar --transform 's/^dist/grist-dist/' --exclude dist/persist --exclude dist/config/secrets -czvf grist-dist.tar.gz dist/"
+    ]
+  }
   provisioner "file" {
-    source      = "dist"
-    destination = "/tmp/grist-dist"
+    source      = "grist-dist.tar.gz"
+    destination = "/tmp/"
+    generated   = true
+  }
+  provisioner "shell" {
+    inline = [
+      "cd /tmp/",
+      "tar xvf grist-dist.tar.gz",
+      "rm grist-dist.tar.gz"
+    ]
   }
 
   provisioner "shell" {
