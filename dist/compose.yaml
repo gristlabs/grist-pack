@@ -46,12 +46,16 @@ services:
       # Working with multiple teams is possible but a little harder to
       # explain and understand, and the UI has rough edges.
       GRIST_SINGLE_ORG: ${TEAM}
-      # Default email for the "Admin" account
-      GRIST_DEFAULT_EMAIL: ${DEFAULT_EMAIL:-test@example.org}
+      GRIST_DEFAULT_EMAIL: ${DEFAULT_EMAIL}
+
+      # Node requires this in order to accept our manually-provided or
+      # self-signed certs
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
     restart: always
     volumes:
       # Where to store persistent data, such as documents.
       - ${PERSIST_DIR}/grist:/persist
+      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     depends_on:
       traefik:
         condition: service_started
@@ -74,6 +78,7 @@ services:
     volumes:
       - ./config/dex.yaml:/etc/dex/config.docker.yaml
       - ./persist:/persist
+      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     user: "${UID}:${GID}"
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
@@ -121,6 +126,7 @@ services:
     volumes:
       - ./config/authelia:/config
       - ${PERSIST_DIR}/authelia:/persist
+      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     command:
       - 'authelia'
       - '--config=/config/configuration.yml'
