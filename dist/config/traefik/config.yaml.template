@@ -1,0 +1,32 @@
+entryPoints:
+  # Defines a secure entrypoint using TLS encryption
+  websecure:
+    address: ":443"
+    http:
+      tls: true
+  # Defines an insecure entrypoint that redirects to the secure one.
+  web:
+    address: ":80"
+    http:
+      # Redirects HTTP to HTTPS
+      redirections:
+        entrypoint:
+          to: "websecure"
+          scheme: "https"
+
+providers:
+  file:
+    filename: "/settings/providers.yaml"
+
+api:
+  insecure: ${TRAEFIK_ENABLE_DASHBOARD}
+  dashboard: ${TRAEFIK_ENABLE_DASHBOARD}
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: ${DEFAULT_EMAIL}
+      storage: /acme/acme.json
+      tlschallenge: true
+
+

@@ -10,7 +10,7 @@ secrets:
   HMAC_SECRET:
     file: ${SECRETS_DIR}/HMAC_SECRET
   JWT_PRIVATE_KEY:
-    file: ${SECRETS_DIR}/certs/private.pem
+    file: ${SECRETS_DIR}/authelia-certs/private.pem
   DEX_CLIENT_SECRET_DIGEST:
     file: ${SECRETS_DIR}/DEX_CLIENT_SECRET_DIGEST
 
@@ -18,25 +18,31 @@ services:
   traefik:
     container_name: traefik
     image: traefik:latest
+    environment:
+      HTTPS_METHOD: ${HTTPS_METHOD}
+      TRAEFIK_ENABLE_DASHBOARD: ${TRAEFIK_ENABLE_DASHBOARD}
+      DEFAULT_EMAIL: ${DEFAULT_EMAIL}
+      GRIST_DOMAIN: ${GRIST_DOMAIN}
+
     ports:
       # HTTP Ports
       - "80:80"
       - "443:443"
-      # The Web UI (enabled by --api.insecure=true)
+      # The Web UI (enabled by TRAEFIK_ENABLE_DASHBOARD)
       - "8080:8080"
-      - "8082:8082"
-    command:
-      - '--providers.file.filename=/settings/traefik.yaml'
-      - '--entryPoints.web.address=:80'
+    entrypoint:
+      - /settings/entrypoint.sh
     volumes:
-      - ./config/traefik.yaml:/settings/traefik.yaml
-      - ./config/secrets/acme_certificates:/acme
+      - ./config/traefik:/settings
+      - ./config/secrets/acme:/acme
+      - ./config/secrets/traefik-certs:/certs
 
   grist:
     container_name: grist
     image: gristlabs/grist:latest
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
+      GRIST_SANDBOX_FLAVOR: gvisor
 
       GRIST_OIDC_IDP_ISSUER: '${APP_HOME_URL}/dex'
       GRIST_OIDC_IDP_CLIENT_ID: '${GRIST_OIDC_IDP_CLIENT_ID}'
@@ -46,12 +52,16 @@ services:
       # Working with multiple teams is possible but a little harder to
       # explain and understand, and the UI has rough edges.
       GRIST_SINGLE_ORG: ${TEAM}
-      # Default email for the "Admin" account
-      GRIST_DEFAULT_EMAIL: ${DEFAULT_EMAIL:-test@example.org}
+      GRIST_DEFAULT_EMAIL: ${DEFAULT_EMAIL}
+
+      # Node requires this in order to accept our manually-provided or
+      # self-signed certs
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
     restart: always
     volumes:
       # Where to store persistent data, such as documents.
       - ${PERSIST_DIR}/grist:/persist
+      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     depends_on:
       traefik:
         condition: service_started
@@ -74,6 +84,7 @@ services:
     volumes:
       - ./config/dex.yaml:/etc/dex/config.docker.yaml
       - ./persist:/persist
+      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     user: "${UID}:${GID}"
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
@@ -121,6 +132,7 @@ services:
     volumes:
       - ./config/authelia:/config
       - ${PERSIST_DIR}/authelia:/persist
+      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     command:
       - 'authelia'
       - '--config=/config/configuration.yml'

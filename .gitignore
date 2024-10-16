@@ -1,0 +1,6 @@
+*.pkrvars.hcl
+.env
+dist/config/secrets
+dist/persist
+manifest.json
+grist-dist.tar.gz
