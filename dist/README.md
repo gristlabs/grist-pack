@@ -14,7 +14,7 @@ First, make sure that [docker is installed](https://docs.docker.com/engine/insta
 In order to set up authentication secrets and some basic, default configuration, first run
 
 ```sh
-./bin/generate-secure-secrets
+GRIST_DOMAIN=grist.example.com DEFAULT_EMAIL=gristadmin@example.com ./bin/bootstrap-environment
 ```
 
 <!-- TODO: Logically separate out the crypto part of setup from the

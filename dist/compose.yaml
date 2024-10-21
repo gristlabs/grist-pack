@@ -18,7 +18,7 @@ services:
   traefik:
     container_name: traefik
     image: traefik:latest
-    user: "${UID}:${GID}"
+    user: "${USERID}:${GROUPID}"
     environment:
       HTTPS_METHOD: ${HTTPS_METHOD}
       TRAEFIK_ENABLE_DASHBOARD: ${TRAEFIK_ENABLE_DASHBOARD}
@@ -41,7 +41,7 @@ services:
   grist:
     container_name: grist
     image: gristlabs/grist:latest
-    user: "${UID}:${GID}"
+    user: "${USERID}:${GROUPID}"
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
       GRIST_SANDBOX_FLAVOR: gvisor
@@ -83,7 +83,7 @@ services:
     restart: always
     container_name: dex
     image: dexidp/dex:latest
-    user: "${UID}:${GID}"
+    user: "${USERID}:${GROUPID}"
     volumes:
       - ./config/dex.yaml:/etc/dex/config.docker.yaml
       - ./persist:/persist
@@ -112,7 +112,7 @@ services:
   authelia:
     container_name: authelia
     image: authelia/authelia:4
-    user: "${UID}:${GID}"
+    user: "${USERID}:${GROUPID}"
     secrets:
       - HMAC_SECRET
       - JWT_SECRET
