@@ -14,7 +14,7 @@ First, make sure that [docker is installed](https://docs.docker.com/engine/insta
 In order to set up authentication secrets and some basic, default configuration, first run
 
 ```sh
-./bin/generate-secure-secrets
+./bin/bootstrap-environment
 ```
 
 <!-- TODO: Logically separate out the crypto part of setup from the
