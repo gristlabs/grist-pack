@@ -61,7 +61,7 @@ services:
     volumes:
       # Where to store persistent data, such as documents.
       - ${PERSIST_DIR}/grist:/persist
-      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
+      - ${SECRETS_DIR}/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     depends_on:
       traefik:
         condition: service_started
@@ -84,8 +84,7 @@ services:
     volumes:
       - ./config/dex.yaml:/etc/dex/config.docker.yaml
       - ./persist:/persist
-      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
-    user: "${UID}:${GID}"
+      - ${SECRETS_DIR}/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
       GRIST_OIDC_IDP_CLIENT_ID: ${GRIST_OIDC_IDP_CLIENT_ID}
@@ -132,7 +131,7 @@ services:
     volumes:
       - ./config/authelia:/config
       - ${PERSIST_DIR}/authelia:/persist
-      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
+      - ${SECRETS_DIR}/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     command:
       - 'authelia'
       - '--config=/config/configuration.yml'
