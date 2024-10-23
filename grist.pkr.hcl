@@ -102,6 +102,7 @@ build {
       "scripts/setup-grist-dist",
       "scripts/setup-ufw",
       "scripts/setup-systemd",
+      "scripts/setup-root-user",
       "scripts/cleanup"
     ]
   }

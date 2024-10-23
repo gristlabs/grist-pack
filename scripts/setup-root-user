@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo '
+Welcome to the cloud distribution of Grist!
+
+The Grist installation is under the `grist` user. Run
+
+    sudo -iu grist
+
+to manage the installation.
+' > /etc/grist-motd
+
+echo "cat /etc/grist-motd" >> ~/.bashrc
