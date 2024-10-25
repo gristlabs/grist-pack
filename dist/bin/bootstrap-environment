@@ -75,9 +75,23 @@ function setSecretsVariables {
 
 }
 
+function setUpSelfSignedCert {
+  echo "${green}Setting up a self-signed certificate for the ${GRIST_DOMAIN} domain${normal}"
+  # Generate a default, self-signed TLS cert for traefik so at least we
+  # have something
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/CN=${GRIST_DOMAIN}" \
+    -addext "subjectAltName = DNS:${GRIST_DOMAIN}" \
+    -keyout $SECRETS_DIR/traefik-certs/grist.key \
+    -out $SECRETS_DIR/traefik-certs/grist.crt
+
+  # Create our own trusted ca-certificates.crt that included our self-signed cert.
+  cat /etc/ssl/certs/ca-certificates.crt $SECRETS_DIR/traefik-certs/grist.crt > \
+    $SECRETS_DIR/ca-certificates.crt
+}
 
 setConfigVariables
 setUpDirStructure
 setSecretsVariables
+setUpSelfSignedCert
 
 envsubst < $CONFIG_DIR/env-template > $PERSIST_DIR/env-vars
