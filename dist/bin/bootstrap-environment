@@ -1,0 +1,80 @@
+#!/bin/bash
+# Helper script to securely generate random secrets and setup basic config
+
+set -e
+
+CONFIG_DIR=$(realpath $(dirname $0)/../config)
+ENV_DIR=$(realpath $CONFIG_DIR/..)
+
+green=$(tput setaf 2)
+normal=$(tput sgr0)
+
+# Parses an Authelia generated secret for the value
+function getSecret {
+  cut -d ":" -f 2 <<< "$1" | tr -d '[:blank:]'
+}
+
+function generateSecureString {
+  getSecret "$(docker run authelia/authelia:4 authelia crypto rand --charset=rfc3986 --length="$1")"
+}
+
+function setUpDirStructure {
+  echo "${green}Setting up directory structure${normal}"
+  rm -rf "$SECRETS_DIR"
+  mkdir -p "$SECRETS_DIR/acme"
+  mkdir -p "$SECRETS_DIR/traefik-certs"
+  mkdir -p "$SECRETS_DIR/authelia-certs"
+
+  mkdir -p "$PERSIST_DIR/authelia"
+  mkdir -p "$PERSIST_DIR/grist"
+}
+
+function setConfigVariables {
+  echo "${green}Setting up default environment variables${normal}"
+
+  # Don't overwrite config if it already exists
+  if [[ -e $ENV_DIR/.env ]]; then
+    source .env
+  fi
+
+  export TEAM=${TEAM:-grist-team}
+  export GRIST_DOMAIN=${GRIST_DOMAIN:-grist.localhost}
+  export TRAEFIK_ENABLE_DASHBOARD=${TRAEFIK_ENABLE_DASHBOARD:-false}
+  export PERSIST_DIR=${PERSIST_DIR:-${ENV_DIR}/persist}
+  export SECRETS_DIR=${SECRETS_DIR:-${PERSIST_DIR}/secrets}
+  export DEFAULT_EMAIL=${DEFAULT_EMAIL:-test@example.org}
+
+  export GOOGLE_CLIENT_ID
+  export GOOGLE_CLIENT_SECRET
+  export MICROSOFT_CLIENT_ID
+  export MICROSOFT_CLIENT_SECRET
+}
+
+function setSecretsVariables {
+  echo "${green}Generating random secret variables${normal}"
+  generateSecureString 128 > "$SECRETS_DIR/HMAC_SECRET"
+  generateSecureString 128 > "$SECRETS_DIR/JWT_SECRET"
+  generateSecureString 128 > "$SECRETS_DIR/SESSION_SECRET"
+  generateSecureString 128 > "$SECRETS_DIR/STORAGE_ENCRYPTION_KEY"
+  export GRIST_OIDC_IDP_CLIENT_ID=$(generateSecureString 64)
+  export GRIST_OIDC_IDP_CLIENT_SECRET=$(generateSecureString 64)
+
+  # Generates the OIDC secret key for the Dex client
+  export CLIENT_SECRET_OUTPUT="$(docker run authelia/authelia:4 authelia crypto hash generate pbkdf2 \
+    --variant sha512 --random --random.length 72 --random.charset rfc3986)"
+  export DEX_CLIENT_SECRET=$(getSecret "$(grep 'Password' <<< $CLIENT_SECRET_OUTPUT)")
+
+  getSecret "$(grep 'Digest' <<< $CLIENT_SECRET_OUTPUT)" > "$SECRETS_DIR/DEX_CLIENT_SECRET_DIGEST"
+
+  # Generate JWT certificates Authelia needs for OIDC
+  docker run -v $SECRETS_DIR/authelia-certs:/certs -u $(id -u):$(id -g) \
+    authelia/authelia:4 authelia crypto certificate rsa generate -d /certs
+
+}
+
+
+setConfigVariables
+setUpDirStructure
+setSecretsVariables
+
+envsubst < $CONFIG_DIR/env-template > $PERSIST_DIR/env-vars

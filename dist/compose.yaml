@@ -46,8 +46,7 @@ services:
       # Working with multiple teams is possible but a little harder to
       # explain and understand, and the UI has rough edges.
       GRIST_SINGLE_ORG: ${TEAM}
-      # Default email for the "Admin" account
-      GRIST_DEFAULT_EMAIL: ${DEFAULT_EMAIL:-test@example.org}
+      GRIST_DEFAULT_EMAIL: ${DEFAULT_EMAIL}
     restart: always
     volumes:
       # Where to store persistent data, such as documents.
