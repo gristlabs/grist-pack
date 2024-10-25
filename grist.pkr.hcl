@@ -102,7 +102,13 @@ build {
       "scripts/setup-grist-dist",
       "scripts/setup-ufw",
       "scripts/setup-systemd",
+      "scripts/cleanup",
     ]
+  }
+
+  provisioner "shell" {
+    script = "scripts/digitalocean-img-check"
+    only   = ["digitalocean.ubuntu_do"]
   }
 
   # Need to figure out the story for making it easy to mount volumes for AWS
