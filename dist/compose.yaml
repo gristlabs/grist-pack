@@ -18,6 +18,7 @@ services:
   traefik:
     container_name: traefik
     image: traefik:latest
+    user: "${USERID}:${GROUPID}"
     ports:
       # HTTP Ports
       - "80:80"
@@ -35,6 +36,7 @@ services:
   grist:
     container_name: grist
     image: gristlabs/grist:latest
+    user: "${USERID}:${GROUPID}"
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
 
@@ -70,10 +72,10 @@ services:
     restart: always
     container_name: dex
     image: dexidp/dex:latest
+    user: "${USERID}:${GROUPID}"
     volumes:
       - ./config/dex.yaml:/etc/dex/config.docker.yaml
       - ./persist:/persist
-    user: "${UID}:${GID}"
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
       GRIST_OIDC_IDP_CLIENT_ID: ${GRIST_OIDC_IDP_CLIENT_ID}
@@ -98,6 +100,7 @@ services:
   authelia:
     container_name: authelia
     image: authelia/authelia:4
+    user: "${USERID}:${GROUPID}"
     secrets:
       - HMAC_SECRET
       - JWT_SECRET

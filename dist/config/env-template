@@ -1,5 +1,3 @@
-UID=
-GID=
 # The initial values for variables in this file are automatically
 # populated by the `bootstrap-environment` script. Please be aware
 # that re-running that script may overwrite some changes you make to
@@ -32,6 +30,11 @@ SECRETS_DIR=$SECRETS_DIR
 GRIST_OIDC_IDP_CLIENT_ID=$GRIST_OIDC_IDP_CLIENT_ID
 GRIST_OIDC_IDP_CLIENT_SECRET=$GRIST_OIDC_IDP_CLIENT_SECRET
 DEX_CLIENT_SECRET=$DEX_CLIENT_SECRET
+
+# User and group ID for the Docker services. This should default to
+# the current user.
+USERID=$USERID
+GROUPID=$GROUPID
 
 # This should be https://$GRIST_DOMAIN
 APP_HOME_URL=https://${GRIST_DOMAIN}
