@@ -21,6 +21,10 @@ providers:
   file:
     filename: "/settings/providers.yaml"
 
+api:
+  insecure: ${TRAEFIK_ENABLE_DASHBOARD}
+  dashboard: ${TRAEFIK_ENABLE_DASHBOARD}
+
 certificatesResolvers:
   letsencrypt:
     acme:

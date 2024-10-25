@@ -22,6 +22,10 @@ HTTPS_METHOD=$HTTPS_METHOD
 # configure that team name here.
 TEAM=$TEAM
 
+# Either true or false. If true, this enables an insecure Traefik
+# dashboard at http://$GRIST_DOMAIN:8080/dashboard/
+TRAEFIK_ENABLE_DASHBOARD=$TRAEFIK_ENABLE_DASHBOARD
+
 # If you want to use Google or Microsoft for OpenID Connect, provide
 # credentials for either or both here
 GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}

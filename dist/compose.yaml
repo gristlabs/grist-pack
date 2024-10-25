@@ -21,6 +21,7 @@ services:
     user: "${USERID}:${GROUPID}"
     environment:
       HTTPS_METHOD: ${HTTPS_METHOD}
+      TRAEFIK_ENABLE_DASHBOARD: ${TRAEFIK_ENABLE_DASHBOARD}
       DEFAULT_EMAIL: ${DEFAULT_EMAIL}
       GRIST_DOMAIN: ${GRIST_DOMAIN}
 
@@ -28,7 +29,7 @@ services:
       # HTTP Ports
       - "80:80"
       - "443:443"
-      # The Web UI (enabled by --api.insecure=true)
+      # The Web UI (enabled by TRAEFIK_ENABLE_DASHBOARD)
       - "8080:8080"
       - "8082:8082"
     entrypoint:
