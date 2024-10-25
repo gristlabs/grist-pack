@@ -80,6 +80,6 @@ tls:
   stores:
     default:
       defaultCertificate:
-        certFile: /persist/traefik/grist.crt
-        keyFile: /persist/traefik/grist.key
+        certFile: /certs/grist.crt
+        keyFile: /certs/grist.key
 {{ end }}

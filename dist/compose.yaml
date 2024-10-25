@@ -10,7 +10,7 @@ secrets:
   HMAC_SECRET:
     file: ${SECRETS_DIR}/HMAC_SECRET
   JWT_PRIVATE_KEY:
-    file: ${SECRETS_DIR}/certs/private.pem
+    file: ${SECRETS_DIR}/authelia-certs/private.pem
   DEX_CLIENT_SECRET_DIGEST:
     file: ${SECRETS_DIR}/DEX_CLIENT_SECRET_DIGEST
 
@@ -34,8 +34,9 @@ services:
     entrypoint:
       - /settings/entrypoint.sh
     volumes:
-      - ./config/secrets/acme_certificates:/acme
       - ./config/traefik:/settings
+      - ${SECRETS_DIR}/acme:/acme
+      - ${SECRETS_DIR}/traefik-certs:/certs
 
   grist:
     container_name: grist
@@ -53,10 +54,15 @@ services:
       # explain and understand, and the UI has rough edges.
       GRIST_SINGLE_ORG: ${TEAM}
       GRIST_DEFAULT_EMAIL: ${DEFAULT_EMAIL}
+
+      # Node requires this in order to accept our manually-provided or
+      # self-signed certs
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
     restart: always
     volumes:
       # Where to store persistent data, such as documents.
       - ${PERSIST_DIR}/grist:/persist
+      - ${SECRETS_DIR}/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     depends_on:
       traefik:
         condition: service_started
@@ -80,6 +86,7 @@ services:
     volumes:
       - ./config/dex.yaml:/etc/dex/config.docker.yaml
       - ./persist:/persist
+      - ${SECRETS_DIR}/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
       GRIST_OIDC_IDP_CLIENT_ID: ${GRIST_OIDC_IDP_CLIENT_ID}
@@ -127,6 +134,7 @@ services:
     volumes:
       - ./config/authelia:/config
       - ${PERSIST_DIR}/authelia:/persist
+      - ${SECRETS_DIR}/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     command:
       - 'authelia'
       - '--config=/config/configuration.yml'
