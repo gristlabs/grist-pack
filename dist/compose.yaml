@@ -21,6 +21,9 @@ services:
     user: "${USERID}:${GROUPID}"
     environment:
       HTTPS_METHOD: ${HTTPS_METHOD}
+      DEFAULT_EMAIL: ${DEFAULT_EMAIL}
+      GRIST_DOMAIN: ${GRIST_DOMAIN}
+
     ports:
       # HTTP Ports
       - "80:80"
@@ -28,12 +31,11 @@ services:
       # The Web UI (enabled by --api.insecure=true)
       - "8080:8080"
       - "8082:8082"
-    command:
-      - '--providers.file.filename=/settings/traefik.yaml'
-      - '--entryPoints.web.address=:80'
+    entrypoint:
+      - /settings/entrypoint.sh
     volumes:
-      - ./config/traefik.yaml:/settings/traefik.yaml
       - ./config/secrets/acme_certificates:/acme
+      - ./config/traefik:/settings
 
   grist:
     container_name: grist
