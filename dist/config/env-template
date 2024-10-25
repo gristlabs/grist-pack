@@ -1,15 +1,35 @@
 UID=
 GID=
-GRIST_DOMAIN=grist.localhost
-APP_HOME_URL=http://${GRIST_DOMAIN}
-DEFAULT_EMAIL=test@example.org
-TEAM=cool-beans
 PERSIST_DIR=./persist
 SECRETS_DIR=./config/secrets
-GRIST_OIDC_IDP_CLIENT_ID=
-GRIST_OIDC_IDP_CLIENT_SECRET=
-DEX_CLIENT_SECRET=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-MICROSOFT_CLIENT_ID=
-MICROSOFT_CLIENT_SECRET=
+# The initial values for variables in this file are automatically
+# populated by the `bootstrap-environment` script. Please be aware
+# that re-running that script may overwrite some changes you make to
+# this file, but most variables should retain their values.
+
+# The domain at which Grist should be hosted. If using automatic
+# HTTPS, it must be a publicly-reachable domain
+GRIST_DOMAIN=${GRIST_DOMAIN}
+
+# The email of the first Grist user, as well as the email to use for
+# Let's Encrypt, if you choose automatic HTTPS
+DEFAULT_EMAIL=$DEFAULT_EMAIL
+# The team name on Grist. This is a single-team instance, but you can
+# configure that team name here.
+TEAM=$TEAM
+
+# If you want to use Google or Microsoft for OpenID Connect, provide
+# credentials for either or both here
+GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+MICROSOFT_CLIENT_ID=${MICROSOFT_CLIENT_ID}
+MICROSOFT_CLIENT_SECRET=${MICROSOFT_CLIENT_SECRET}
+
+# Cryptographic information for OIDC on the local Docker network. Do
+# not manually change these.
+GRIST_OIDC_IDP_CLIENT_ID=$GRIST_OIDC_IDP_CLIENT_ID
+GRIST_OIDC_IDP_CLIENT_SECRET=$GRIST_OIDC_IDP_CLIENT_SECRET
+DEX_CLIENT_SECRET=$DEX_CLIENT_SECRET
+
+# This should be https://$GRIST_DOMAIN
+APP_HOME_URL=https://${GRIST_DOMAIN}
