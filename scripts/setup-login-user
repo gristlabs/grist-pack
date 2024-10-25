@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set +o histexpand
+
+yellow='\e[33m'
+green='\e[32m'
+cyan='\e[36m'
+normal='\e[m'
+
+printf "
+
+
+
+
+
+
+
+
+
+
+	${yellow}Welcome to the cloud distribution of Grist"'!'"${normal}
+
+	The Grist installation is under the ${green}grist${normal} user. Run
+
+	    ${cyan}sudo -iu grist${normal}
+
+	to manage the installation.
+" > ~/.grist-motd
+
+echo "cat ~/.grist-motd" >> ~/.bashrc
