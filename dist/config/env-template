@@ -1,7 +1,5 @@
 UID=
 GID=
-PERSIST_DIR=./persist
-SECRETS_DIR=./config/secrets
 # The initial values for variables in this file are automatically
 # populated by the `bootstrap-environment` script. Please be aware
 # that re-running that script may overwrite some changes you make to
@@ -24,6 +22,10 @@ GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
 GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 MICROSOFT_CLIENT_ID=${MICROSOFT_CLIENT_ID}
 MICROSOFT_CLIENT_SECRET=${MICROSOFT_CLIENT_SECRET}
+
+# Where to store data for Grist and associated services
+PERSIST_DIR=$PERSIST_DIR
+SECRETS_DIR=$SECRETS_DIR
 
 # Cryptographic information for OIDC on the local Docker network. Do
 # not manually change these.
