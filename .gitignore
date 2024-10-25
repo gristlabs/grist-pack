@@ -1,0 +1,7 @@
+*.pkrvars.hcl
+.env
+dist/config/secrets
+dist/persist
+config/traefik/config.yaml
+manifest.json
+grist-dist.tar.gz
