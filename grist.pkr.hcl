@@ -101,6 +101,7 @@ build {
       "scripts/install-docker",
       "scripts/setup-grist-dist",
       "scripts/setup-ufw",
+      "scripts/setup-systemd",
     ]
   }
 

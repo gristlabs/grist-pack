@@ -1,0 +1,19 @@
+#!/bin/bash
+
+echo "[Unit]
+Description=Docker Compose Service for Grist
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+User=grist
+WorkingDirectory=/home/grist
+ExecStart=/usr/bin/docker compose up
+ExecStop=/usr/bin/docker compose down
+TimeoutStartSec=0
+Restart=always
+
+[Install]
+WantedBy=multi-user.target" > /etc/systemd/system/grist.service
+
+systemctl daemon-reload
