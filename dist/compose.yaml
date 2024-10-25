@@ -44,6 +44,7 @@ services:
     user: "${USERID}:${GROUPID}"
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
+      GRIST_SANDBOX_FLAVOR: gvisor
 
       GRIST_OIDC_IDP_ISSUER: '${APP_HOME_URL}/dex'
       GRIST_OIDC_IDP_CLIENT_ID: '${GRIST_OIDC_IDP_CLIENT_ID}'
