@@ -107,6 +107,11 @@ build {
   }
 
   provisioner "shell" {
+    # The login user is either `ubuntu` for AWS or `root` for DO
+    script = "scripts/setup-login-user"
+  }
+
+  provisioner "shell" {
     script = "scripts/digitalocean-img-check"
     only   = ["digitalocean.ubuntu_do"]
   }
