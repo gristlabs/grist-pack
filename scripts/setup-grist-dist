@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+adduser --disabled-password --gecos '' grist
+echo 'grist ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/10-grist-user
+usermod -a -G sudo grist
+usermod -a -G docker grist
+mv /tmp/grist-dist/* ~grist
+chown -R grist:grist ~grist
+echo 'Executing docker compose pull'
+sudo -u grist bash -c 'cd ~ && docker compose pull 2> /dev/null'
