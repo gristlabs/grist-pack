@@ -10,6 +10,14 @@ GRIST_DOMAIN=${GRIST_DOMAIN}
 # The email of the first Grist user, as well as the email to use for
 # Let's Encrypt, if you choose automatic HTTPS
 DEFAULT_EMAIL=$DEFAULT_EMAIL
+
+# Either manual or auto
+#
+#   auto:    use Let's Encrypt
+#   manual:  use the default, self-signed certificate or provide your
+#            own
+HTTPS_METHOD=$HTTPS_METHOD
+
 # The team name on Grist. This is a single-team instance, but you can
 # configure that team name here.
 TEAM=$TEAM

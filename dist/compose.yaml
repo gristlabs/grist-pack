@@ -19,6 +19,8 @@ services:
     container_name: traefik
     image: traefik:latest
     user: "${USERID}:${GROUPID}"
+    environment:
+      HTTPS_METHOD: ${HTTPS_METHOD}
     ports:
       # HTTP Ports
       - "80:80"

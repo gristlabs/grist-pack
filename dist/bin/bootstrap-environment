@@ -41,6 +41,7 @@ function setConfigVariables {
   export GROUPID=$(id -g)
   export TEAM=${TEAM:-grist-team}
   export GRIST_DOMAIN=${GRIST_DOMAIN:-grist.localhost}
+  export HTTPS_METHOD=${HTTPS_METHOD:-manual}
   export TRAEFIK_ENABLE_DASHBOARD=${TRAEFIK_ENABLE_DASHBOARD:-false}
   export PERSIST_DIR=${PERSIST_DIR:-${ENV_DIR}/persist}
   export SECRETS_DIR=${SECRETS_DIR:-${PERSIST_DIR}/secrets}
