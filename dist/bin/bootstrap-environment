@@ -37,6 +37,8 @@ function setConfigVariables {
     source .env
   fi
 
+  export USERID=$(id -u)
+  export GROUPID=$(id -g)
   export TEAM=${TEAM:-grist-team}
   export GRIST_DOMAIN=${GRIST_DOMAIN:-grist.localhost}
   export TRAEFIK_ENABLE_DASHBOARD=${TRAEFIK_ENABLE_DASHBOARD:-false}
