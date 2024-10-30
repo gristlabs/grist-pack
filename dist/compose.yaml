@@ -99,9 +99,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-O", "-", "http://127.0.0.1:5556/dex/healthz"]
-      interval: 2s
-      timeout: 60s
-      retries: 20
+      interval: 5s
+      timeout: 120s
+      retries: 60
     # See note above on `links` on the Grist service
     links:
       - "traefik:${GRIST_DOMAIN}"
