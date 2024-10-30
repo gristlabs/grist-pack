@@ -64,8 +64,6 @@ services:
       - ${PERSIST_DIR}/grist:/persist
       - ${SECRETS_DIR}/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     depends_on:
-      traefik:
-        condition: service_started
       dex:
         condition: service_healthy
     # In order for internal OIDC requests to work regardless whether
@@ -108,6 +106,42 @@ services:
     links:
       - "traefik:${GRIST_DOMAIN}"
 
+  # This service is needed because the traefik container itself
+  # doesn't have an openssl command, so we use this sidecar service
+  # with openssl to run the health check. We need this check to
+  # succeed to make sure we can do HTTPS requests with Let's Encrypt,
+  # which takes a while to initialise.
+  traefik-healthcheck:
+    container_name: traefik-healthcheck
+    image: alpine/openssl
+    depends_on:
+      traefik:
+        condition: service_started
+    # Keep this service running forever so other services. can depend
+    # on it being alive and replying to health checks.
+    entrypoint: ["/bin/sh", "-c", "while true; do sleep 60; done"]
+    healthcheck:
+      # Traefik is healthy once it's able to issue a non-default,
+      # non-issued-by-traefik TLS cert.
+      test:
+        - "CMD"
+        - "sh"
+        - "-c"
+        # This pipeline with `grep -v` at the end will return 0
+        # (success) if there is no match, i.e. no "traefik" in the
+        # cert issuer's name.
+        #
+        # Also note we connect to the traefik container but specify
+        # the Grist Domain in order to coax Traefik to give us the
+        # relevant cert.
+        - >
+          openssl s_client -showcerts -connect traefik:443
+          -servername ${GRIST_DOMAIN} 2>/dev/null </dev/null
+          | openssl x509 -noout -issuer | grep issuer | grep -v -i traefik
+      interval: 5s
+      timeout: 120s
+      retries: 60
+
   authelia:
     container_name: authelia
     image: authelia/authelia:4
@@ -131,6 +165,9 @@ services:
       DEX_OAUTH_CALLBACK_URL: '${APP_HOME_URL}/dex/callback'
       # Hash of the client secret provided to Dex.
       DEX_CLIENT_SECRET_DIGEST_FILE: "/run/secrets/DEX_CLIENT_SECRET_DIGEST"
+    depends_on:
+      traefik-healthcheck:
+        condition: service_healthy
     volumes:
       - ./config/authelia:/config
       - ${PERSIST_DIR}/authelia:/persist
