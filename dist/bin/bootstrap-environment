@@ -111,3 +111,11 @@ setSecretsVariables
 setUpSelfSignedCert
 
 envsubst < $CONFIG_DIR/env-template > $PERSIST_DIR/env-vars
+
+# We keep everything the user might want to save in $PERSIST_DIR, so
+# we symlink the env file, the one thing that has to sit outside
+# $PERSIST_DIR.
+ln -sf $PERSIST_DIR/env-vars $ENV_DIR/.env
+
+# Make it prominent that the .env file exists
+ln -sf $PERSIST_DIR/env-vars $ENV_DIR/env-vars
