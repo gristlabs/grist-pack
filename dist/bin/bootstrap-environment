@@ -7,6 +7,7 @@ CONFIG_DIR=$(realpath $(dirname $0)/../config)
 ENV_DIR=$(realpath $CONFIG_DIR/..)
 
 green=$(tput setaf 2)
+red=$(tput setaf 1)
 normal=$(tput sgr0)
 
 # Parses an Authelia generated secret for the value
@@ -20,7 +21,6 @@ function generateSecureString {
 
 function setUpDirStructure {
   echo "${green}Setting up directory structure${normal}"
-  rm -rf "$SECRETS_DIR"
   mkdir -p "$SECRETS_DIR/acme"
   mkdir -p "$SECRETS_DIR/traefik-certs"
   mkdir -p "$SECRETS_DIR/authelia-certs"
@@ -54,6 +54,16 @@ function setConfigVariables {
 }
 
 function setSecretsVariables {
+  if [[ -e $PERSIST_DIR/authelia/db.sqlite3 ]]; then
+    echo "${red}Authelia's database has already been populated. "
+    echo "Not generating new secrets.${normal}"
+
+    export GRIST_OIDC_IDP_CLIENT_ID
+    export GRIST_OIDC_IDP_CLIENT_SECRET
+    export DEX_CLIENT_SECRET
+    return
+  fi;
+
   echo "${green}Generating random secret variables${normal}"
   generateSecureString 128 > "$SECRETS_DIR/HMAC_SECRET"
   generateSecureString 128 > "$SECRETS_DIR/JWT_SECRET"
@@ -76,13 +86,19 @@ function setSecretsVariables {
 }
 
 function setUpSelfSignedCert {
-  echo "${green}Setting up a self-signed certificate for the ${GRIST_DOMAIN} domain${normal}"
-  # Generate a default, self-signed TLS cert for traefik so at least we
-  # have something
-  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/CN=${GRIST_DOMAIN}" \
-    -addext "subjectAltName = DNS:${GRIST_DOMAIN}" \
-    -keyout $SECRETS_DIR/traefik-certs/grist.key \
-    -out $SECRETS_DIR/traefik-certs/grist.crt
+  certfile=$SECRETS_DIR/traefik-certs/grist.crt
+  keyfile=$SECRETS_DIR/traefik-certs/grist.key
+  if [[ -e $certfile ]]; then
+    echo "${red}Not overwriting $certfile, file already exists${normal}"
+    return
+  else
+    echo "${green}Setting up a self-signed certificate for the ${GRIST_DOMAIN} domain${normal}"
+    # Generate a default, self-signed TLS cert for traefik so at least we
+    # have something
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/CN=${GRIST_DOMAIN}" \
+      -addext "subjectAltName = DNS:${GRIST_DOMAIN}" \
+      -keyout $keyfile -out $certfile
+  fi
 
   # Create our own trusted ca-certificates.crt that included our self-signed cert.
   cat /etc/ssl/certs/ca-certificates.crt $SECRETS_DIR/traefik-certs/grist.crt > \
