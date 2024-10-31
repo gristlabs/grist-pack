@@ -59,3 +59,28 @@ to do that are in the file.
 
 Compose will start, in this order, Traefik, Authelia, Dex, and finally
 Grist.
+
+# Using systemd
+
+If everything looks fine, you may interrupt Compose (hit Ctrl-C), run
+`docker compose down` and use systemd to handle the Grist Docker process:
+
+```sh
+sudo systemd enable --now grist
+```
+
+This will ensure that Grist restarts cleanly if you need to stop or
+restart the server it's running on.
+
+Once you have enabled the systemd unit, you can also do
+`systemctl stop grist` or `systemctl start grist` in
+order to start or stop the Grist Docker services like any other
+systemd unit.
+
+The logs from all of the Grist Docker services will also be available
+in systemd's journal service, for example,
+
+```sh
+sudo journalctl -xeu grist
+```
+
