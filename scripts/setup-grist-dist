@@ -7,6 +7,30 @@ echo 'grist ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/10-grist-user
 usermod -a -G sudo grist
 usermod -a -G docker grist
 mv /tmp/grist-dist/* ~grist
+
+yellow='\e[33m'
+green='\e[32m'
+cyan='\e[36m'
+normal='\e[m'
+
+printf "
+${yellow}Quickstart${normal}:
+
+Copy the following. Change the example to use your real username,
+password, email, and domain where Grist will be hosted. Then paste the
+modified snippet back into the console.
+
+	USERNAME=${cyan}gristuser${normal} \\
+	PASSWORD=${cyan}secretpassword${normal} \\
+	DEFAULT_EMAIL=${cyan}gristadmin@example.com${normal} \\
+	GRIST_DOMAIN=${cyan}grist.example.com${normal} \\
+	bootstrap-environment && docker compose up
+
+See ${green}README.md${normal} (\`${cyan}less README.md${normal}\`) for more details.
+" > ~grist/.grist-motd
+echo "cat ~/.grist-motd" >> ~grist/.bashrc
+
 chown -R grist:grist ~grist
 echo 'Executing docker compose pull'
 sudo -u grist bash -c 'cd ~ && docker compose pull 2> /dev/null'
+
