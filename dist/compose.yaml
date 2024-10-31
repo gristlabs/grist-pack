@@ -170,7 +170,8 @@ services:
       traefik-healthcheck:
         condition: service_healthy
     volumes:
-      - ./config/authelia:/config
+      - ./config/authelia/configuration.yml:/config/configuration.yml
+      - ${PERSIST_DIR}/users_database.yml:/config/users_database.yml
       - ${PERSIST_DIR}/authelia:/persist
       - ${SECRETS_DIR}/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
     command:
