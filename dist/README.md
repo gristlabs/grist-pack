@@ -30,11 +30,15 @@ GRIST_DOMAIN=grist.example.com \
 This will use Authelia and OpenSSL to generate some cryptographic
 information needed in `persist/secrets`, as well as an `.env` file in
 the current directory with some defaults for running the Compose
-image. 
+image.
 
-You may wish to inspect the `.env` file to change some defaults, but
-leave the cryptographic choices alone. If you make any changes, re-run
-`./bin/bootstrap-environment`.
+You may wish to inspect the `.env` file to change some defaults,
+
+```sh
+nano .env
+```
+
+but leave the cryptographic choices alone.
 
 Then run as usual,
 
