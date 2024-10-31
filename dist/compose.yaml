@@ -49,7 +49,7 @@ services:
       GRIST_OIDC_IDP_ISSUER: '${APP_HOME_URL}/dex'
       GRIST_OIDC_IDP_CLIENT_ID: '${GRIST_OIDC_IDP_CLIENT_ID}'
       GRIST_OIDC_IDP_CLIENT_SECRET: '${GRIST_OIDC_IDP_CLIENT_SECRET}'
-      GRIST_OIDC_IDP_END_SESSION_ENDPOINT: '${APP_HOME_URL}/signed-out'
+      GRIST_OIDC_IDP_END_SESSION_ENDPOINT: '${APP_HOME_URL}/authelia'
 
       # Working with multiple teams is possible but a little harder to
       # explain and understand, and the UI has rough edges.
