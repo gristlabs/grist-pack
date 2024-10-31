@@ -13,13 +13,18 @@ It combines the following tools as services in Compose:
 # Quickstart
 
 You will need a domain name for this Grist instance, as well as a
-default email address for the initial admin Grist user. 
+username, password, and default email address for the initial admin
+Grist user.
 
 In order to set up authentication secrets and some basic, default
 configuration, first run, for example,
 
 ```sh
-GRIST_DOMAIN=grist.example.com DEFAULT_EMAIL=gristadmin@example.com ./bin/bootstrap-environment
+USERNAME=grist \
+PASSWORD=grist \
+DEFAULT_EMAIL=gristadmin@example.com \
+GRIST_DOMAIN=grist.example.com \
+./bin/bootstrap-environment
 ```
 
 This will use Authelia and OpenSSL to generate some cryptographic
@@ -40,12 +45,12 @@ docker compose up
 This creates the following default setup:
 
 * Grist at https://$GRIST_DOMAIN
-<!--TODO: let user configure the default username/password -->
-* Default username: `test`
-* Default password: `test`
+* Username for the admin user: $USERNAME
+* Password for the admin user: $PASSWORD
+* Email for the admin user: $DEFAULT_EMAIL
 
 If you want to add, modify or delete users, you can do this in
-`config/authelia/users_database.yml`. All of the instructions needed
+`persist/users_database.yml`. All of the instructions needed
 to do that are in the file.
 
 Compose will start, in this order, Traefik, Authelia, Dex, and finally

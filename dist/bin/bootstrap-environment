@@ -39,6 +39,8 @@ function setConfigVariables {
 
   export USERID=$(id -u)
   export GROUPID=$(id -g)
+  export USERNAME=${USERNAME:-grist}
+  export PASSWORD=${PASSWORD:-grist}
   export TEAM=${TEAM:-grist-team}
   export GRIST_DOMAIN=${GRIST_DOMAIN:-grist.localhost}
   export HTTPS_METHOD=${HTTPS_METHOD:-manual}
@@ -105,10 +107,23 @@ function setUpSelfSignedCert {
     $SECRETS_DIR/ca-certificates.crt
 }
 
+function setUpAdminUser {
+  dbfile=$PERSIST_DIR/users_database.yml
+  if [[ -e $dbfile ]]; then
+    echo "${red}Not overwriting $dbfile, file already exists${normal}"
+    return
+  else
+    echo "${green}Writing initial admin user credentials${normal}"
+    export PASSWORD_HASH=$(docker run authelia/authelia:4 authelia crypto hash generate argon2 --password "$PASSWORD" | cut -f 2 -d' ')
+    envsubst < $CONFIG_DIR/authelia/users_database.yml.template > $dbfile
+  fi
+}
+
 setConfigVariables
 setUpDirStructure
 setSecretsVariables
 setUpSelfSignedCert
+setUpAdminUser
 
 envsubst < $CONFIG_DIR/env-template > $PERSIST_DIR/env-vars
 
