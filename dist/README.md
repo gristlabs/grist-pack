@@ -84,3 +84,40 @@ in systemd's journal service, for example,
 sudo journalctl -xeu grist
 ```
 
+
+# Configuration
+
+The following environment variables can be configured:
+
+* `USERNAME`
+* `PASSWORD`
+* `DEFAULT_EMAIL`
+* `GRIST_DOMAIN`
+* `TEAM`
+* `TRAEFIK_ENABLE_DASHBOARD`
+* `HTTPS_METHOD`
+* `GOOGLE_CLIENT_ID`
+* `GOOGLE_CLIENT_SECRET`
+* `MICROSOFT_CLIENT_ID`
+* `MICROSOFT_CLIENT_SECRET`
+* `PERSIST_DIR`
+* `SECRETS_DIR`
+
+They are documented in the generated `.env` file. They may be changed,
+but some require re-generating files in the directory defined by
+`PERSIST_DIR`. Here are some cases:
+
+
+* `USERNAME`, `PASSWORD`: If you change either of these, you will need
+  to delete Authelia's `users_database.yaml` file, and re-run the
+  bootstrap script to regenerate it.
+* `DEFAULT_EMAIL`: This variable is used for generating the first user
+  in Authelia, for defining the first admin user in Grist, and if you
+  use automatic HTTPS, for associating a user to a certificate with
+  Let's Encrypt. If you change this variable, you will have to change
+  re-generate `users_database.yaml` as above, and possibly reassign
+  ownership of documents in Grist to the new email.
+* `GRIST_DOMAIN`: If `GRIST_DOMAIN` is changed and you are using the
+  automatically created self-signed certificates, you will need to
+  delete your existing certificate and re-run the bootstrap script to
+  create a new certificate.
