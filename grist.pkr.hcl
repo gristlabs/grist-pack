@@ -47,19 +47,21 @@ source "amazon-ebs" "ubuntu_aws" {
     most_recent = true
     owners      = ["099720109477"] # Canonical's official Ubuntu AMIs
   }
-  ssh_username   = "ubuntu"
-  access_key     = var.aws_access_key
-  secret_key     = var.aws_secret_key
-  user_data_file = ""
+  ssh_username              = "ubuntu"
+  access_key                = var.aws_access_key
+  secret_key                = var.aws_secret_key
+  user_data_file            = ""
+  ssh_clear_authorized_keys = true
 }
 
 source "digitalocean" "ubuntu_do" {
-  image         = var.do_image
-  region        = "nyc3"
-  size          = "s-1vcpu-1gb"
-  api_token     = var.do_token
-  ssh_username  = "root"
-  snapshot_name = "grist-marketplace-{{timestamp}}"
+  image                     = var.do_image
+  region                    = "nyc3"
+  size                      = "s-1vcpu-1gb"
+  api_token                 = var.do_token
+  ssh_username              = "root"
+  snapshot_name             = "grist-marketplace-{{timestamp}}"
+  ssh_clear_authorized_keys = true
 }
 
 build {
