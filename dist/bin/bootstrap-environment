@@ -16,7 +16,7 @@ function getSecret {
 }
 
 function generateSecureString {
-  getSecret "$(docker run authelia/authelia:4 authelia crypto rand --charset=rfc3986 --length="$1")"
+  getSecret "$(docker run --rm authelia/authelia:4 authelia crypto rand --charset=rfc3986 --length="$1")"
 }
 
 function setUpDirStructure {
@@ -75,14 +75,14 @@ function setSecretsVariables {
   export GRIST_OIDC_IDP_CLIENT_SECRET=$(generateSecureString 64)
 
   # Generates the OIDC secret key for the Dex client
-  export CLIENT_SECRET_OUTPUT="$(docker run authelia/authelia:4 authelia crypto hash generate pbkdf2 \
+  export CLIENT_SECRET_OUTPUT="$(docker run --rm authelia/authelia:4 authelia crypto hash generate pbkdf2 \
     --variant sha512 --random --random.length 72 --random.charset rfc3986)"
   export DEX_CLIENT_SECRET=$(getSecret "$(grep 'Password' <<< $CLIENT_SECRET_OUTPUT)")
 
   getSecret "$(grep 'Digest' <<< $CLIENT_SECRET_OUTPUT)" > "$SECRETS_DIR/DEX_CLIENT_SECRET_DIGEST"
 
   # Generate JWT certificates Authelia needs for OIDC
-  docker run -v $SECRETS_DIR/authelia-certs:/certs -u $(id -u):$(id -g) \
+  docker run --rm -v $SECRETS_DIR/authelia-certs:/certs -u $(id -u):$(id -g) \
     authelia/authelia:4 authelia crypto certificate rsa generate -d /certs
 
 }
@@ -114,7 +114,7 @@ function setUpAdminUser {
     return
   else
     echo "${green}Writing initial admin user credentials${normal}"
-    export PASSWORD_HASH=$(docker run authelia/authelia:4 authelia crypto hash generate argon2 --password "$PASSWORD" | cut -f 2 -d' ')
+    export PASSWORD_HASH=$(docker run --rm authelia/authelia:4 authelia crypto hash generate argon2 --password "$PASSWORD" | cut -f 2 -d' ')
     envsubst < $CONFIG_DIR/authelia/users_database.yml.template > $dbfile
   fi
 }
