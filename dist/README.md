@@ -85,7 +85,7 @@ The logs from all of the Grist Docker services will also be available
 in systemd's journal service, for example:
 
 ```sh
-sudo journalctl -xeu grist
+sudo journalctl -xeu grist --all
 ```
 
 # Configuration
