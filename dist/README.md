@@ -4,7 +4,8 @@
 # Grist Cloud Distribution
 
 This a comprehensive distribution of Grist made with Docker Compose.
-It combines the following tools as services in Compose:
+Along with Grist, it combines the following tools as services in
+Compose:
 
 * [Traefik](https://github.com/traefik/traefik) as a reverse proxy and for TLS termination (handling HTTPS)
 * [Authelia](https://github.com/authelia/authelia) as an email + password manager, optionally with 2FA and
@@ -119,6 +120,7 @@ but some require regenerating files in the directory defined by
   regenerate `users_database.yaml` as above, and possibly reassign
   ownership of documents in Grist to the new email.
 * `GRIST_DOMAIN`: If `GRIST_DOMAIN` is changed and you are using the
-  automatically-created self-signed certificates, you will need to
-  delete your existing certificate and re-run the bootstrap script to
+  automatically created self-signed certificates, you will need to
+  delete your existing certificates under `traefik-certs`, namely
+  `grist.cert` and `grist.key`, and re-run the bootstrap script to
   create a new certificate.
