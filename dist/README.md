@@ -124,3 +124,42 @@ but some require regenerating files in the directory defined by
   delete your existing certificates under `traefik-certs`, namely
   `grist.cert` and `grist.key`, and re-run the bootstrap script to
   create a new certificate.
+
+# Updating Grist
+
+To update to the latest Grist version at any time, first stop Grist.
+
+If using systemd:
+
+```sh
+sudo systemctl disable --now grist
+```
+
+Otherwise:
+
+```sh
+docker compose down
+```
+
+Then pull the latest changes:
+
+```sh
+docker compose pull
+```
+
+Once that completes successfully, restart Grist.
+
+If using systemd:
+
+```sh
+sudo systemctl enable --now grist
+```
+
+Otherwise:
+
+```sh
+docker compose up
+```
+
+You may then confirm as usual from the Grist web interface that the
+latest version is now available.
