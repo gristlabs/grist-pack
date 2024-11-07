@@ -1,3 +1,6 @@
+( You may also read this document online at
+  https://github.com/gristlabs/grist-pack/tree/main/dist )
+
 # Grist Cloud Distribution
 
 This a comprehensive distribution of Grist made with Docker Compose.
