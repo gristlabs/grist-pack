@@ -57,7 +57,8 @@ function setConfigVariables {
 
 function setSecretsVariables {
   if [[ -e $PERSIST_DIR/authelia/db.sqlite3 ]]; then
-    echo "${red}Authelia's database has already been populated. "
+    echo "${red}Authelia's main configuration database has "\
+         "already been populated. "
     echo "Not generating new secrets.${normal}"
 
     export GRIST_OIDC_IDP_CLIENT_ID
