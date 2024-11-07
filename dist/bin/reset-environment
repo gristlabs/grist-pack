@@ -1,0 +1,50 @@
+#!/bin/bash
+# Helper script to safely get out of some bad situations
+
+set -e
+
+CONFIG_DIR=$(realpath $(dirname $0)/../config)
+ENV_DIR=$(realpath $CONFIG_DIR/..)
+
+green=$(tput setaf 2)
+normal=$(tput sgr0)
+
+if [[ -e $ENV_DIR/.env ]]; then
+  echo "${green}Reusing existing environment variables from ${ENV_DIR}${normal}"
+  source .env
+fi
+
+
+if [[ ! -z $(docker ps --all --quiet) ]]; then
+  # Bring down docker, sometimes it's still lingering around
+  echo "${green}Bringing down docker compose...${normal}"
+  docker compose down
+  sudo systemctl disable --now grist
+fi
+
+PERSIST_DIR=${PERSIST_DIR:-${ENV_DIR}/persist}
+
+if [[ -e $PERSIST_DIR ]]; then
+  # Sometimes ~/persist stays up and ends up being owned by root, can
+  # happen if the Docker process ended up creating the directory
+  # instead of the bootstrap script
+  echo "${green}Ensuring that $PERSIST_DIR is owned by the current user${normal}"
+  sudo chown -R $(id -u):$(id -g) $PERSIST_DIR
+  # Unix time
+  timestamp=$(date +%s)
+  NEW_PERSIST_DIR=${PERSIST_DIR}-${timestamp}.bak
+  echo "${green}Backing up persist directory to ${NEW_PERSIST_DIR}${normal}"
+  mv $PERSIST_DIR $NEW_PERSIST_DIR
+  PERSIST_DIR=$NEW_PERSIST_DIR
+
+  if [[ -e $PERSIST_DIR/env-vars ]]; then
+    echo "${green}Salvaging old environment variables as .env file${normal}"
+    rm -f $ENV_DIR/.env
+    cp $PERSIST_DIR/env-vars $ENV_DIR/.env
+    SALVAGED_VARS="yes"
+  fi
+
+fi
+
+echo "Environment reset complete. Inspect backed-up files, and re-run "'`bootstrap-environment`'" "\
+     "when ready.".
