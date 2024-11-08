@@ -106,9 +106,12 @@ The following environment variables can be configured:
 * `PERSIST_DIR`
 * `SECRETS_DIR`
 
-They are documented in the generated `.env` file. They may be changed,
-but some require regenerating files in the directory defined by
-`PERSIST_DIR`. Here are some cases:
+They are documented in the generated `.env` file. 
+
+## Changing configuration variables
+
+Variables may be changed, but some require regenerating files in the
+directory defined by `PERSIST_DIR`. Here are some cases:
 
 * `USERNAME`, `PASSWORD`: If you change either of these, you will need
   to delete Authelia's `users_database.yaml` file and re-run the
@@ -124,6 +127,18 @@ but some require regenerating files in the directory defined by
   delete your existing certificates under `traefik-certs`, namely
   `grist.cert` and `grist.key`, and re-run the bootstrap script to
   create a new certificate.
+
+Additionally, it's possible to reset the environment to a mostly
+pristine state:
+
+```sh
+./bin/reset-environment
+```
+
+This will stop Grist, back up your generated files, and save your
+current configuration variables, if any, into the `~/.env` file. You
+may then inspect or modify your variables and re-run the bootstrap
+script again.
 
 # Updating Grist
 
