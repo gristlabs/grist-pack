@@ -70,14 +70,14 @@ If everything looks fine, you may interrupt Compose (hit Ctrl-C), run
 `docker compose down` and use systemd to handle the Grist Docker process:
 
 ```sh
-sudo systemd enable --now grist
+sudo systemctl enable --now grist
 ```
 
 This will ensure that Grist restarts cleanly if you need to stop or
 restart the server it's running on.
 
 Once you have enabled the systemd unit, you can also run
-`systemctl stop grist` or `systemctl start grist` in
+`sudo systemctl stop grist` or `sudo systemctl start grist` in
 order to start or stop the Grist Docker services like any other
 systemd unit.
 
