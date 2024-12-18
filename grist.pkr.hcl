@@ -9,6 +9,10 @@ packer {
       version = ">= 1"
       source  = "github.com/hashicorp/amazon"
     }
+    azure = {
+      source  = "github.com/hashicorp/azure"
+      version = "~> 2"
+    }
   }
 }
 
@@ -27,6 +31,31 @@ variable "do_token" {
   default = ""
 }
 
+variable "azure_tenant_id" {
+  type    = string
+  default = ""
+}
+
+variable "azure_subscription_id" {
+  type    = string
+  default = ""
+}
+
+variable "azure_client_id" {
+  type    = string
+  default = ""
+}
+
+variable "azure_client_secret" {
+  type    = string
+  default = ""
+}
+
+variable "azure_resource_group" {
+  type    = string
+  default = "Grist"
+}
+
 variable "do_image" {
   type    = string
   default = "ubuntu-24-04-x64"
@@ -42,6 +71,10 @@ locals {
   enabled_sources = flatten([
     var.aws_access_key != "" && var.aws_secret_key != "" ? ["source.amazon-ebs.ubuntu"] : [],
     var.do_token != "" ? ["source.digitalocean.ubuntu"] : [],
+    var.azure_tenant_id != ""
+    && var.azure_subscription_id != ""
+    && var.azure_client_id != ""
+    && var.azure_client_secret != "" ? ["source.azure-arm.ubuntu"] : []
   ])
 }
 
@@ -73,6 +106,27 @@ source "digitalocean" "ubuntu" {
   ssh_username              = "root"
   snapshot_name             = "grist-marketplace-${local.timestamp}"
   ssh_clear_authorized_keys = true
+}
+
+source "azure-arm" "ubuntu" {
+  subscription_id = var.azure_subscription_id
+  client_id       = var.azure_client_id
+  client_secret   = var.azure_client_secret
+  tenant_id       = var.azure_tenant_id
+
+  location = "Central US"
+
+  vm_size         = "Standard_B2s"
+  image_publisher = "Canonical"
+  image_offer     = "ubuntu-24_04-lts"
+  image_sku       = "server"
+
+  managed_image_resource_group_name = var.azure_resource_group
+  managed_image_name                = "grist-marketplace-${local.timestamp}"
+
+  os_type      = "Linux"
+  communicator = "ssh"
+  ssh_username = "packer"
 }
 
 build {
