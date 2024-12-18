@@ -104,13 +104,9 @@ build {
       "scripts/setup-grist-dist",
       "scripts/setup-ufw",
       "scripts/setup-systemd",
+      "scripts/setup-login-user",
       "scripts/cleanup",
     ]
-  }
-
-  provisioner "shell" {
-    # The login user is either `ubuntu` for AWS or `root` for DO
-    script = "scripts/setup-login-user"
   }
 
   provisioner "shell" {
