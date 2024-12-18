@@ -2,7 +2,7 @@
 
 # Passwords are generated using 'authelia crypto hash generate argon2'
 # E.g:
-#     docker run authelia/authelia:4 authelia crypto hash generate argon2 --password "test"
+#     docker run --rm authelia/authelia:4 authelia crypto hash generate argon2 --password "test"
 # See https://www.authelia.com/reference/guides/passwords/#yaml-format
 
 users:
