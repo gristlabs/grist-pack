@@ -176,6 +176,16 @@ build {
     only   = ["digitalocean.ubuntu_do"]
   }
 
+  provisioner "shell" {
+    execute_command = "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'"
+    inline = [
+      "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+    ]
+    inline_shebang = "/bin/sh -x"
+    only           = ["azure-arm.ubuntu"]
+  }
+
+
   # Need to figure out the story for making it easy to mount volumes for AWS
   # and DO. They each handle it differently.
 
