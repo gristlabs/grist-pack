@@ -13,15 +13,18 @@ packer {
 }
 
 variable "aws_access_key" {
-  type = string
+  type    = string
+  default = ""
 }
 
 variable "aws_secret_key" {
-  type = string
+  type    = string
+  default = ""
 }
 
 variable "do_token" {
-  type = string
+  type    = string
+  default = ""
 }
 
 variable "do_image" {
@@ -36,9 +39,13 @@ variable "aws_image_filter" {
 
 locals {
   timestamp = formatdate("YYYY-MM-DD-hhmm", timestamp())
+  enabled_sources = flatten([
+    var.aws_access_key != "" && var.aws_secret_key != "" ? ["source.amazon-ebs.ubuntu"] : [],
+    var.do_token != "" ? ["source.digitalocean.ubuntu"] : [],
+  ])
 }
 
-source "amazon-ebs" "ubuntu_aws" {
+source "amazon-ebs" "ubuntu" {
   ami_name      = "grist-marketplace-${local.timestamp}"
   instance_type = "t2.micro"
   region        = "us-east-1"
@@ -58,7 +65,7 @@ source "amazon-ebs" "ubuntu_aws" {
   ssh_clear_authorized_keys = true
 }
 
-source "digitalocean" "ubuntu_do" {
+source "digitalocean" "ubuntu" {
   image                     = var.do_image
   region                    = "nyc3"
   size                      = "s-1vcpu-1gb"
@@ -69,10 +76,7 @@ source "digitalocean" "ubuntu_do" {
 }
 
 build {
-  sources = [
-    "source.amazon-ebs.ubuntu_aws",
-    "source.digitalocean.ubuntu_do"
-  ]
+  sources = local.enabled_sources
 
   # Pack up and send the dist
   provisioner "shell-local" {
