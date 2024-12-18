@@ -34,8 +34,12 @@ variable "aws_image_filter" {
   default = "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"
 }
 
+locals {
+  timestamp = formatdate("YYYY-MM-DD-hhmm", timestamp())
+}
+
 source "amazon-ebs" "ubuntu_aws" {
-  ami_name      = "grist-marketplace-{{timestamp}}"
+  ami_name      = "grist-marketplace-${local.timestamp}"
   instance_type = "t2.micro"
   region        = "us-east-1"
   source_ami_filter {
@@ -60,7 +64,7 @@ source "digitalocean" "ubuntu_do" {
   size                      = "s-1vcpu-1gb"
   api_token                 = var.do_token
   ssh_username              = "root"
-  snapshot_name             = "grist-marketplace-{{timestamp}}"
+  snapshot_name             = "grist-marketplace-${local.timestamp}"
   ssh_clear_authorized_keys = true
 }
 
