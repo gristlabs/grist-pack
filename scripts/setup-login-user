@@ -18,13 +18,11 @@ printf "
 
 
 
-	${yellow}Welcome to the cloud distribution of Grist"'!'"${normal}
+	${yellow}Welcome to Grist Builder Edition"'!'"${normal}
 
 	The Grist installation is under the ${green}grist${normal} user. Run
 
 	    ${cyan}sudo -iu grist${normal}
 
 	to manage the installation.
-" > ~/.grist-motd
-
-echo "cat ~/.grist-motd" >> ~/.bashrc
+" > /etc/motd
