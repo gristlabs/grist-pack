@@ -59,6 +59,9 @@ services:
       # Node requires this in order to accept our manually-provided or
       # self-signed certs
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
+    env_file:
+      - path: "grist-env"
+        required: false
     restart: always
     volumes:
       # Where to store persistent data, such as documents.
