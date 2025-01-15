@@ -6,6 +6,7 @@ set -e
 CONFIG_DIR=$(realpath $(dirname $0)/../config)
 ENV_DIR=$(realpath $CONFIG_DIR/..)
 
+yellow=$(tput setaf 3)
 green=$(tput setaf 2)
 red=$(tput setaf 1)
 normal=$(tput sgr0)
@@ -23,10 +24,13 @@ function setUpDirStructure {
   echo "${green}Setting up directory structure${normal}"
   mkdir -p "$SECRETS_DIR/acme"
   mkdir -p "$SECRETS_DIR/traefik-certs"
-  mkdir -p "$SECRETS_DIR/authelia-certs"
 
-  mkdir -p "$PERSIST_DIR/authelia"
   mkdir -p "$PERSIST_DIR/grist"
+
+  if [[ $COMPOSE_PROFILES == 'default' ]]; then
+    mkdir -p "$SECRETS_DIR/authelia-certs"
+    mkdir -p "$PERSIST_DIR/authelia"
+  fi
 }
 
 function setConfigVariables {
@@ -57,6 +61,11 @@ function setConfigVariables {
 }
 
 function setSecretsVariables {
+  if [[ $COMPOSE_PROFILES != "default" ]]; then
+    echo "${yellow}Skipping generation of Dex and Authelia secrets in advanced mode.${normal}"
+    return
+  fi
+
   if [[ -e $PERSIST_DIR/authelia/db.sqlite3 ]]; then
     echo "${red}Authelia's main configuration database has "\
          "already been populated. "
@@ -110,6 +119,11 @@ function setUpSelfSignedCert {
 }
 
 function setUpAdminUser {
+  if [[ $COMPOSE_PROFILES != "default" ]]; then
+    echo "${yellow}Skipping admin user credentials in advanced mode.${normal}"
+    return
+  fi
+
   dbfile=$PERSIST_DIR/users_database.yml
   if [[ -e $dbfile ]]; then
     echo "${red}Not overwriting $dbfile, file already exists${normal}"
