@@ -48,6 +48,7 @@ function setConfigVariables {
   export PERSIST_DIR=${PERSIST_DIR:-${ENV_DIR}/persist}
   export SECRETS_DIR=${SECRETS_DIR:-${PERSIST_DIR}/secrets}
   export DEFAULT_EMAIL=${DEFAULT_EMAIL:-test@example.org}
+  export COMPOSE_PROFILES=${COMPOSE_PROFILES:-default}
 
   export GOOGLE_CLIENT_ID
   export GOOGLE_CLIENT_SECRET

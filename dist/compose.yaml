@@ -79,6 +79,9 @@ services:
     # will use the internal Docker network when talking to each other.
     links:
       - "traefik:${GRIST_DOMAIN}"
+    profiles:
+      - default
+
 
   dex:
     restart: always
@@ -109,6 +112,8 @@ services:
     # See note above on `links` on the Grist service
     links:
       - "traefik:${GRIST_DOMAIN}"
+    profiles:
+      - default
 
   # This service is needed because the traefik container itself
   # doesn't have an openssl command, so we use this sidecar service
@@ -185,3 +190,5 @@ services:
     # See note above on `links` on the Grist service
     links:
       - "traefik:${GRIST_DOMAIN}"
+    profiles:
+      - default
