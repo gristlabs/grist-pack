@@ -50,3 +50,8 @@ GROUPID=$GROUPID
 
 # This should be https://$GRIST_DOMAIN
 APP_HOME_URL=https://${GRIST_DOMAIN}
+
+# The Docker Compose profile to use. The advanced profile does not use
+# Dex or Authelia and leaves all configuration to the user in a
+# `grist-env` file.
+COMPOSE_PROFILES=$COMPOSE_PROFILES
