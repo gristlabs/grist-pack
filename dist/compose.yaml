@@ -82,6 +82,32 @@ services:
     profiles:
       - default
 
+  # Like the grist service, but less configured, for more advanced use
+  # cases.
+  grist-advanced:
+    container_name: grist
+    image: gristlabs/grist:latest
+    user: "${USERID}:${GROUPID}"
+    environment:
+      # Node requires this in order to accept our manually-provided or
+      # self-signed certs
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
+    env_file:
+      - path: "${PERSIST_DIR}/grist-env"
+        required: true
+    restart: always
+    volumes:
+      # Where to store persistent data, such as documents.
+      - ${PERSIST_DIR}/grist:/persist
+      - ${SECRETS_DIR}/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
+    depends_on:
+      traefik-healthcheck:
+        condition: service_healthy
+    # See note above on `links` on the default grist service.
+    links:
+      - "traefik:${GRIST_DOMAIN}"
+    profiles:
+      - advanced
 
   dex:
     restart: always
