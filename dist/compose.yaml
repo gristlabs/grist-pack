@@ -60,7 +60,7 @@ services:
       # self-signed certs
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
     env_file:
-      - path: "grist-env"
+      - path: "${PERSIST_DIR}/grist-env"
         required: false
     restart: always
     volumes:

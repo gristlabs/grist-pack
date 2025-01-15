@@ -36,11 +36,12 @@ if [[ -e $PERSIST_DIR ]]; then
   echo "${green}Backing up persist directory to ${NEW_PERSIST_DIR}${normal}"
   mv $PERSIST_DIR $NEW_PERSIST_DIR
   PERSIST_DIR=$NEW_PERSIST_DIR
+  ENV_FILE=$PERSIST_DIR/base-env
 
-  if [[ -e $PERSIST_DIR/env-vars ]]; then
+  if [[ -e $ENV_FILE ]]; then
     echo "${green}Salvaging old environment variables as .env file${normal}"
     rm -f $ENV_DIR/.env
-    cp $PERSIST_DIR/env-vars $ENV_DIR/.env
+    cp $ENV_FILE $ENV_DIR/.env
     SALVAGED_VARS="yes"
   fi
 

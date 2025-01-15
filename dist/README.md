@@ -143,16 +143,16 @@ script again.
 ## Additional configuration
 
 If you would like to pass any other environment variables to your
-Grist instance, you may use a supplemental file called `grist-env` to
-define any other extra variables. The syntax is the same as the
-standard `.env` file syntax.
+Grist instance, you may use a supplemental file called
+`persist/grist-env` to define any other extra variables. The syntax is
+the same as the standard `.env` file syntax.
 
 The configuration defined in `.env` takes precedence over the
-variables defined in `grist-env`.
+variables defined in `persist/grist-env`.
 
-The extra variables defined in `grist-env` will only be applied to the
-Grist Docker Compose service. In particular, they will not affect
-Traefik's, Dex's, or Authelia's environment.
+The extra variables defined in `persist/grist-env` will only be
+applied to the Grist Docker Compose service. In particular, they will
+not affect Traefik's, Dex's, or Authelia's environment.
 
 # Updating Grist
 
