@@ -154,7 +154,35 @@ The extra variables defined in `persist/grist-env` will only be
 applied to the Grist Docker Compose service. In particular, they will
 not affect Traefik's, Dex's, or Authelia's environment.
 
-# Updating Grist
+## Advanced profile
+
+For advanced use cases where the authentication provided by Dex and
+Authelia is not adequate, it is possible to enable an advanced Docker
+Compose profile. This profile will only configure Traefik and start
+with a completely blank Grist configuration. To generate an advanced
+configuration, from a clean slate do
+
+```sh
+COMPOSE_PROFILES=advanced \
+DEFAULT_EMAIL=gristadmin@example.com \
+GRIST_DOMAIN=grist.example.com \
+./bin/bootstrap-environment
+```
+
+All of the Grist configuration must now be provided via the
+supplemental `persist/grist-env` file described in the previous
+section. At a bare minimum, this requires setting `APP_HOME_URL`. We
+also recommend setting the following variables to these values:
+
+* `GRIST_DEFAULT_EMAIL=${DEFAULT_EMAIL}`
+* `GRIST_SANDBOX_FLAVOR=gvisor`
+* `GRIST_ANON_PLAYGROUND=false`
+
+For further instructions on these variables as well as configuring
+authentication, consult [our documentation for
+self-hosting](https://support.getgrist.com/self-managed/).
+
+# updating Grist
 
 To update to the latest Grist version at any time, first stop Grist.
 
