@@ -70,6 +70,13 @@ services:
     depends_on:
       dex:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8484/status?db=1&redis=1"]
+      interval: 30s
+      retries: 3
+      timeout: 5s
+      start_period: 10s
+      start_interval: 5s
     # In order for internal OIDC requests to work regardless whether
     # the container can access the open internet or not, redirect all
     # GRIST_DOMAIN requests to Traefik, which can then apply its
@@ -103,6 +110,13 @@ services:
     depends_on:
       traefik-healthcheck:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8484/status?db=1&redis=1"]
+      interval: 30s
+      retries: 3
+      timeout: 5s
+      start_period: 10s
+      start_interval: 5s
     # See note above on `links` on the default grist service.
     links:
       - "traefik:${GRIST_DOMAIN}"
