@@ -71,7 +71,7 @@ services:
       dex:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8484/status?db=1&redis=1"]
+      test: ["CMD", "curl", "-f", "http://localhost:8484/status?db=1"]
       interval: 30s
       retries: 3
       timeout: 5s
@@ -111,7 +111,7 @@ services:
       traefik-healthcheck:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8484/status?db=1&redis=1"]
+      test: ["CMD", "curl", "-f", "http://localhost:8484/status?db=1"]
       interval: 30s
       retries: 3
       timeout: 5s
