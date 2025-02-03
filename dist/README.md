@@ -182,41 +182,39 @@ For further instructions on these variables as well as configuring
 authentication, consult [our documentation for
 self-hosting](https://support.getgrist.com/self-managed/).
 
-# updating Grist
+# Upgrading Grist
 
-To update to the latest Grist version at any time, first stop Grist.
-
-If using systemd:
-
-```sh
-sudo systemctl disable --now grist
-```
-
-Otherwise:
+To upgrade to the latest Grist version, we recommend using systemd as
+described above, and enabling the supplied systemd timer:
 
 ```sh
-docker compose down
+sudo systemctl enable --now grist-upgrade.timer
 ```
 
-Then pull the latest changes:
+This timer will restart Grist and apply Grist upgrades every Saturday night at around
+the server time's midnight.
+
+## Custom upgrade schedule
+
+You may override the default weekly schedule by setting a different
+`OnCalendar` value (refer to the [`systemd.time` manual page for the
+syntax](https://man.archlinux.org/man/systemd.time.7.en#CALENDAR_EVENTS))
+via the following command:
 
 ```sh
-docker compose pull
+sudo systemctl edit grist-upgrade.timer
 ```
 
-Once that completes successfully, restart Grist.
+For example, to run upgrades only once a month, save the following to
+the override file:
 
-If using systemd:
+```ini
+[Timer]
+OnCalendar=monthly
+```
+
+You may also manually upgrade at any time by running:
 
 ```sh
-sudo systemctl enable --now grist
+sudo systemctl start grist-upgrade.service
 ```
-
-Otherwise:
-
-```sh
-docker compose up
-```
-
-You may then confirm as usual from the Grist web interface that the
-latest version is now available.
