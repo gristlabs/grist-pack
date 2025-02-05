@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+docker compose pull
+
+if systemctl is-active --quiet grist.service; then
+  sudo systemctl restart grist.service
+
+  # Old docker images can quickly add up, so let's clean those up
+  docker image prune --all --force
+  docker builer prune --all --force
+fi
