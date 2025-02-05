@@ -16,4 +16,24 @@ Restart=always
 [Install]
 WantedBy=multi-user.target" > /etc/systemd/system/grist.service
 
+echo "[Unit]
+Description=Upgrade Docker Compose services for Grist
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/grist
+ExecStart=/home/grist/bin/upgrade-grist"  > /etc/systemd/system/grist-upgrade.service
+
+echo "[Unit]
+Description=Run Docker Compose upgrade for Grist weekly
+
+[Timer]
+OnCalendar=Sun *-*-* 04:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target" > /etc/systemd/system/grist-upgrade.timer
+
 systemctl daemon-reload
