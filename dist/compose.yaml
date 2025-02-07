@@ -17,7 +17,7 @@ secrets:
 services:
   traefik:
     container_name: traefik
-    image: traefik:latest
+    image: "traefik:${TRAEFIK_DOCKER_TAG}"
     user: "${USERID}:${GROUPID}"
     environment:
       HTTPS_METHOD: ${HTTPS_METHOD}
@@ -40,7 +40,7 @@ services:
 
   grist:
     container_name: grist
-    image: gristlabs/grist:latest
+    image: "gristlabs/grist:${GRIST_DOCKER_TAG}"
     user: "${USERID}:${GROUPID}"
     environment:
       APP_HOME_URL: ${APP_HOME_URL}
@@ -93,7 +93,7 @@ services:
   # cases.
   grist-advanced:
     container_name: grist
-    image: gristlabs/grist:latest
+    image: "gristlabs/grist:${GRIST_DOCKER_TAG}"
     user: "${USERID}:${GROUPID}"
     environment:
       # Node requires this in order to accept our manually-provided or
@@ -126,7 +126,7 @@ services:
   dex:
     restart: always
     container_name: dex
-    image: dexidp/dex:latest
+    image: "dexidp/dex:${DEX_DOCKER_TAG}"
     user: "${USERID}:${GROUPID}"
     volumes:
       - ./config/dex.yaml:/etc/dex/config.docker.yaml
@@ -193,7 +193,7 @@ services:
 
   authelia:
     container_name: authelia
-    image: authelia/authelia:4
+    image: "authelia/authelia:${AUTHELIA_DOCKER_TAG}"
     user: "${USERID}:${GROUPID}"
     secrets:
       - HMAC_SECRET
