@@ -53,6 +53,10 @@ function setConfigVariables {
   export SECRETS_DIR=${SECRETS_DIR:-${PERSIST_DIR}/secrets}
   export DEFAULT_EMAIL=${DEFAULT_EMAIL:-test@example.org}
   export COMPOSE_PROFILES=${COMPOSE_PROFILES:-default}
+  export GRIST_DOCKER_TAG=${GRIST_DOCKER_TAG:-latest}
+  export DEX_DOCKER_TAG=${DEX_DOCKER_TAG:-latest}
+  export AUTHELIA_DOCKER_TAG=${AUTHELIA_DOCKER_TAG:-latest}
+  export TRAEFIK_DOCKER_TAG=${TRAEFIK_DOCKER_TAG:-latest}
 
   export GOOGLE_CLIENT_ID
   export GOOGLE_CLIENT_SECRET

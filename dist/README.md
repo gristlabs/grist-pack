@@ -105,6 +105,11 @@ The following environment variables can be configured:
 * `MICROSOFT_CLIENT_SECRET`
 * `PERSIST_DIR`
 * `SECRETS_DIR`
+* `GRIST_DOCKER_TAG`
+* `DEX_DOCKER_TAG`
+* `AUTHELIA_DOCKER_TAG`
+* `TRAEFIK_DOCKER_TAG`
+* `COMPOSE_PROFILES`
 
 They are documented in the generated `.env` file. 
 
@@ -217,4 +222,19 @@ You may also manually upgrade at any time by running:
 
 ```sh
 sudo systemctl start grist-upgrade.service
+```
+
+## Pinning specific versions
+
+By default upgrades will use the latest version of Grist, Dex,
+Authelia, and Traefik available on Docker Hub. It is possible to pin
+upgrades of any of these services by selecting a specific release tag
+by setting the corresponding environment variable in the generated
+`.env` file.
+
+For example, to pin upgrades to Grist version `1.3.3` set the
+following value:
+
+```sh
+GRIST_DOCKER_TAG=1.3.3
 ```
