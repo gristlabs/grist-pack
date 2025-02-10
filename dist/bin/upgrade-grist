@@ -9,5 +9,5 @@ if systemctl is-active --quiet grist.service; then
 
   # Old docker images can quickly add up, so let's clean those up
   docker image prune --all --force
-  docker builer prune --all --force
+  docker builder prune --all --force
 fi
