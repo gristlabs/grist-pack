@@ -218,12 +218,6 @@ the override file:
 OnCalendar=monthly
 ```
 
-You may also manually upgrade at any time by running:
-
-```sh
-sudo systemctl start grist-upgrade.service
-```
-
 ## Pinning specific versions
 
 By default upgrades will use the latest version of Grist, Dex,
@@ -238,3 +232,51 @@ following value:
 ```sh
 GRIST_DOCKER_TAG=1.3.3
 ```
+
+
+## Upgrading manually
+
+If using systemd, you may also manually upgrade at any time by running:
+
+```sh
+sudo systemctl start grist-upgrade.service
+```
+This can also be done manually without `grist-upgrade.service` as follows.
+
+1. First, stop Grist.
+
+   If using systemd:
+
+   ```sh
+   sudo systemctl disable --now grist
+   ```
+
+   Otherwise:
+
+   ```sh
+   docker compose down
+   ```
+
+2. Pull the latest changes:
+
+   ```sh
+   docker compose pull
+   ```
+
+3. Once that completes successfully, restart Grist.
+
+   If using systemd:
+
+   ```sh
+   sudo systemctl enable --now grist
+   ```
+
+   Otherwise:
+
+   ```sh
+   docker compose up
+   ```
+
+   You may then confirm as usual from the Grist web interface that the
+   latest version is now available.
+
