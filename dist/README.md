@@ -64,6 +64,40 @@ to do that are in the file.
 Compose will start, in the following order: Traefik, Authelia, Dex, and finally
 Grist.
 
+# Configuring HTTPS
+
+The default configuration above uses a self-signed TLS certificate.
+This is adequate for testing purposes, but requires accepting the
+self-signed certificate in web browsers.
+
+For production purposes, there are two options, controlled by the
+environment variable `HTTPS_METHOD` in the `.env` file.
+
+1. Let's Encrypt (`HTTPS_METHOD=auto`)
+2. Providing your own TLS certificate (`HTTPS_METHOD=manual`)
+
+## Using Let's Encrypt
+
+If your Grist instance can be reached from the public internet (that
+is, if it is not behind a VPN or on a local network), then the
+simplest choice is to use Let's Encrypt. Setting `HTTPS_METHOD=auto`
+in your `.env` file will automatically take care of provisioning and
+renewing a certificate from Let's Encrypt.
+
+## Providing your own TLS certificate
+
+If you are on an intranet or VPN or if you wish to a use a
+self-provided certificate, you need to make a valid certificate
+available to Grist. The auto-generated self-signed certificate key
+pair should be available at these locations:
+
+1. `persist/secrets/traefik-certs/grist.key`
+2. `persist/secrets/traefik-certs/grist.crt`
+
+Supply your own private key and certificate respectively, overwriting
+these two files, while keeping the `HTTPS_METHOD=manual` environmment
+variable in you `.env` file.
+
 # Using systemd
 
 If everything looks fine, you may interrupt Compose (hit Ctrl-C), run
