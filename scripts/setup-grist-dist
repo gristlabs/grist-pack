@@ -31,5 +31,3 @@ See ${green}README.md${normal} (\`${cyan}less README.md${normal}\`) for more det
 echo "cat ~/.grist-motd" >> ~grist/.bashrc
 
 chown -R grist:grist ~grist
-echo 'Executing docker compose pull'
-sudo -u grist bash -c 'cd ~ && GRIST_DOCKER_TAG=latest TRAEFIK_DOCKER_TAG=latest DEX_DOCKER_TAG=latest AUTHELIA_DOCKER_TAG=latest docker compose pull'
