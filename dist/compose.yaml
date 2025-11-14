@@ -51,6 +51,9 @@ services:
       GRIST_OIDC_IDP_CLIENT_SECRET: '${GRIST_OIDC_IDP_CLIENT_SECRET}'
       GRIST_OIDC_IDP_END_SESSION_ENDPOINT: '${APP_HOME_URL}/authelia'
 
+      # Enable Redis for state store
+      REDIS_URL: "redis://redis"
+
       # Working with multiple teams is possible but a little harder to
       # explain and understand, and the UI has rough edges.
       GRIST_SINGLE_ORG: ${TEAM}
@@ -70,6 +73,9 @@ services:
     depends_on:
       dex:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+        required: false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8484/status?db=1"]
       interval: 30s
@@ -96,6 +102,9 @@ services:
     image: "gristlabs/grist:${GRIST_DOCKER_TAG}"
     user: "${USERID}:${GROUPID}"
     environment:
+      # Enable Redis for state store
+      REDIS_URL: "redis://redis"
+
       # Node requires this in order to accept our manually-provided or
       # self-signed certs
       NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
@@ -110,6 +119,9 @@ services:
     depends_on:
       traefik-healthcheck:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+        required: false
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8484/status?db=1"]
       interval: 30s
@@ -232,3 +244,19 @@ services:
       - "traefik:${GRIST_DOMAIN}"
     profiles:
       - default
+
+  redis:
+    image: "redis:${REDIS_DOCKER_TAG}"
+    container_name: redis
+    user: "${USERID}:${GROUPID}"
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    restart: unless-stopped
+    volumes:
+      - ./persist/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    profiles:
+      - redis
