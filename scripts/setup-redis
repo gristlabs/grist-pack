@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# Ensure vm.overcommit_memory=1. Without this parameter enabled, Redis
+# persistence can be flakey.
+echo "vm.overcommit_memory=1" > "/etc/sysctl.d/60-overcommit.conf"

@@ -13,6 +13,8 @@ Compose:
 * [Dex](https://github.com/dexidp/dex) as an OIDC provider, by default only using Authelia as a backend
   but optionally can also use Google or Microsoft as a identity
   provider
+* [Redis](https://redis.io/) as a [state
+  store](https://support.getgrist.com/self-managed/#what-is-a-state-store)
 
 # Quickstart
 
@@ -143,6 +145,7 @@ The following environment variables can be configured:
 * `DEX_DOCKER_TAG`
 * `AUTHELIA_DOCKER_TAG`
 * `TRAEFIK_DOCKER_TAG`
+* `REDIS_DOCKER_TAG`
 * `COMPOSE_PROFILES`
 
 They are documented in the generated `.env` file. 
@@ -196,13 +199,14 @@ not affect Traefik's, Dex's, or Authelia's environment.
 ## Advanced profile
 
 For advanced use cases where the authentication provided by Dex and
-Authelia is not adequate, it is possible to enable an advanced Docker
-Compose profile. This profile will only configure Traefik and start
-with a completely blank Grist configuration. To generate an advanced
-configuration, from a clean slate do
+Authelia is not adequate, it is possible to enable an advanced [Docker
+Compose profile](https://docs.docker.com/compose/how-tos/profiles/).
+This profile will only configure Traefik and Redis. It will otherwise
+start with a completely blank Grist configuration. To generate an
+advanced configuration, from a clean slate do
 
 ```sh
-COMPOSE_PROFILES=advanced \
+COMPOSE_PROFILES=advanced,redis \
 DEFAULT_EMAIL=gristadmin@example.com \
 GRIST_DOMAIN=grist.example.com \
 ./bin/bootstrap-environment
@@ -220,6 +224,21 @@ also recommend setting the following variables to these values:
 For further instructions on these variables as well as configuring
 authentication, consult [our documentation for
 self-hosting](https://support.getgrist.com/self-managed/).
+
+## Redis
+
+By default, a Redis service is included as a Compose service. This is
+enabled via [a Docker Compose
+profile](https://docs.docker.com/compose/how-tos/profiles/) named
+`redis`. The following default values hold:
+
+* `COMPOSE_PROFILE=default,redis`
+* `REDIS_URL=redis://redis`
+
+If you wish to supply your own Redis service, set
+`COMPOSE_PROFILE=default` (or `COMPOSE_PROFILE=advanced` for the
+advanced profile), and change the value of `REDIS_URL` to the URL of a
+different Redis server.
 
 # Upgrading Grist
 
