@@ -155,7 +155,7 @@ function csvContains {
   local csvString="$1"
   local targetValue="$2"
 
-  # Check if the tarxhget value, padded with commas, is present
+  # Check if the target value, padded with commas, is present
   # in the CSV string, also padded with commas.
   if [[ ",${csvString}," == *",${targetValue},"* ]]; then
     return 0
