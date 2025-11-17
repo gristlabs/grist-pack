@@ -24,10 +24,13 @@ function setUpDirStructure {
   echo "${green}Setting up directory structure${normal}"
   mkdir -p "$SECRETS_DIR/acme"
   mkdir -p "$SECRETS_DIR/traefik-certs"
-
   mkdir -p "$PERSIST_DIR/grist"
 
-  if [[ $COMPOSE_PROFILES == 'default' ]]; then
+  if csvContains $COMPOSE_PROFILES "redis"; then
+    mkdir -p "$PERSIST_DIR/redis"
+  fi
+
+  if csvContains $COMPOSE_PROFILES "default"; then
     mkdir -p "$SECRETS_DIR/authelia-certs"
     mkdir -p "$PERSIST_DIR/authelia"
   fi
@@ -38,7 +41,14 @@ function setConfigVariables {
 
   # Don't overwrite config if it already exists
   if [[ -e $ENV_DIR/.env ]]; then
-    source .env
+    source $ENV_DIR/.env
+  fi
+
+  export PERSIST_DIR=${PERSIST_DIR:-${ENV_DIR}/persist}
+
+  # Also preserve any Grist-specific env, such as REDIS_URL
+  if [[ -e $PERSIST_DIR/grist-env ]]; then
+    source $PERSIST_DIR/grist-env
   fi
 
   export USERID=$(id -u)
@@ -49,14 +59,16 @@ function setConfigVariables {
   export GRIST_DOMAIN=${GRIST_DOMAIN:-grist.localhost}
   export HTTPS_METHOD=${HTTPS_METHOD:-manual}
   export TRAEFIK_ENABLE_DASHBOARD=${TRAEFIK_ENABLE_DASHBOARD:-false}
-  export PERSIST_DIR=${PERSIST_DIR:-${ENV_DIR}/persist}
   export SECRETS_DIR=${SECRETS_DIR:-${PERSIST_DIR}/secrets}
   export DEFAULT_EMAIL=${DEFAULT_EMAIL:-test@example.org}
-  export COMPOSE_PROFILES=${COMPOSE_PROFILES:-default}
+  export REDIS_URL=${REDIS_URL:-redis://redis}
+  export COMPOSE_PROFILES=${COMPOSE_PROFILES:-default,redis}
+
   export GRIST_DOCKER_TAG=${GRIST_DOCKER_TAG:-latest}
   export DEX_DOCKER_TAG=${DEX_DOCKER_TAG:-latest}
   export AUTHELIA_DOCKER_TAG=${AUTHELIA_DOCKER_TAG:-latest}
   export TRAEFIK_DOCKER_TAG=${TRAEFIK_DOCKER_TAG:-latest}
+  export REDIS_DOCKER_TAG=${REDIS_DOCKER_TAG:-8}
 
   export GOOGLE_CLIENT_ID
   export GOOGLE_CLIENT_SECRET
@@ -65,7 +77,7 @@ function setConfigVariables {
 }
 
 function setSecretsVariables {
-  if [[ $COMPOSE_PROFILES != "default" ]]; then
+  if ! csvContains $COMPOSE_PROFILES "default"; then
     echo "${yellow}Skipping generation of Dex and Authelia secrets in advanced mode.${normal}"
     return
   fi
@@ -123,7 +135,7 @@ function setUpSelfSignedCert {
 }
 
 function setUpAdminUser {
-  if [[ $COMPOSE_PROFILES != "default" ]]; then
+  if ! csvContains $COMPOSE_PROFILES "default"; then
     echo "${yellow}Skipping admin user credentials in advanced mode.${normal}"
     return
   fi
@@ -136,6 +148,19 @@ function setUpAdminUser {
     echo "${green}Writing initial admin user credentials${normal}"
     export PASSWORD_HASH=$(docker run --rm authelia/authelia:4 authelia crypto hash generate argon2 --password "$PASSWORD" | cut -f 2 -d' ')
     envsubst < $CONFIG_DIR/authelia/users_database.yml.template > $dbfile
+  fi
+}
+
+function csvContains {
+  local csvString="$1"
+  local targetValue="$2"
+
+  # Check if the target value, padded with commas, is present
+  # in the CSV string, also padded with commas.
+  if [[ ",${csvString}," == *",${targetValue},"* ]]; then
+    return 0
+  else
+    return 1
   fi
 }
 

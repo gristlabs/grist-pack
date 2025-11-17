@@ -38,6 +38,7 @@ GRIST_DOCKER_TAG=${GRIST_DOCKER_TAG}
 DEX_DOCKER_TAG=${DEX_DOCKER_TAG}
 AUTHELIA_DOCKER_TAG=${AUTHELIA_DOCKER_TAG}
 TRAEFIK_DOCKER_TAG=${TRAEFIK_DOCKER_TAG}
+REDIS_DOCKER_TAG=${REDIS_DOCKER_TAG}
 
 # Where to store data for Grist and associated services
 PERSIST_DIR=$PERSIST_DIR
@@ -57,7 +58,11 @@ GROUPID=$GROUPID
 # This should be https://$GRIST_DOMAIN
 APP_HOME_URL=https://${GRIST_DOMAIN}
 
+# If using the default Docker Redis, this should be redis://redis.
+# You may instead supply your own Redis via this URL.
+REDIS_URL=${REDIS_URL}
+
 # The Docker Compose profile to use. The advanced profile does not use
-# Dex or Authelia and leaves all configuration to the user in a
-# `grist-env` file.
+# Dex or Authelia and leaves most of the configuration to the user in
+# a `persist/grist-env` file.
 COMPOSE_PROFILES=$COMPOSE_PROFILES
