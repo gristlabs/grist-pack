@@ -2,10 +2,19 @@
 
 set -e
 
+ENV_DIR=$(realpath $(dirname $0)/..)
+PERSIST_DIR=${PERSIST_DIR:-${ENV_DIR}/persist}
+
 docker compose pull
 
 if systemctl is-active --quiet grist.service; then
-  sudo systemctl restart grist.service
+  sudo systemctl stop grist.service
+
+  # Opened snapshots don't get cleaned up automatically
+  # TODO: Grist doc workers should do this periodically
+  find $PERSIST_DIR/grist/docs -regextype posix-extended -regex '^.+~v=.+\.grist$' -delete
+
+  sudo systemctl start grist.service
 
   # Old docker images can quickly add up, so let's clean those up
   docker image prune --all --force
