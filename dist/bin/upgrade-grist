@@ -11,15 +11,18 @@ if systemctl is-active --quiet grist.service; then
   sudo systemctl stop grist.service
 
   # Opened snapshots don't get cleaned up automatically
-  # 
+  #
   # This is a band-aid fix that doesn't account for other files that should
   # also be removed periodically when external storage is configured, like
   # plain documents and forks. A more robust solution requires knowledge of
   # the state of external storage, and which documents are open. This implies
   # changes being needed in core Grist code, which are left for follow-up.
-  # 
+  #
   # TODO: Remove this once we have a more robust mechanism in place elsewhere.
-  find $PERSIST_DIR/grist/docs -regextype posix-extended -regex '^.+~v=.+\.grist$' -delete
+  find "$PERSIST_DIR/grist/docs" \
+    -regextype posix-extended \
+    -regex '^.+~v=.+\.grist$' \
+    -delete || true
 
   sudo systemctl start grist.service
 
