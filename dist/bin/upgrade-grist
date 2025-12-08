@@ -17,10 +17,7 @@ if systemctl is-active --quiet grist.service; then
   # changes being needed in core Grist code, which are left for follow-up.
   #
   # TODO: Remove this once we have a more robust mechanism in place elsewhere.
-  find "$PERSIST_DIR/grist/docs" \
-    -regextype posix-extended \
-    -regex '^.+~v=.+\.grist$' \
-    -delete || true
+  find "$PERSIST_DIR/grist/docs" -name '?*~v=?*.grist' -delete || true
 
   sudo systemctl restart grist.service
 
